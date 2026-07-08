@@ -1,4 +1,4 @@
-const RAW_TASKS = window.TFKP_TASKS || [];
+const RAW_TASKS = [...(window.TFKP_TASKS || []), ...(window.TFKP_EXTRA_TASKS || [])];
 const OVERRIDES = window.TFKP_TASK_OVERRIDES || {};
 const PROGRESS_KEY = 'tfkp-trainer-progress-v2';
 const $ = (sel) => document.querySelector(sel);
