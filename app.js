@@ -12,7 +12,7 @@ function mergeTask(t) {
 }
 
 const TASKS = RAW_TASKS.map(mergeTask);
-let state = { query: '', topic: 'all', year: 'all', quality: 'all', status: 'all', activeId: TASKS[0]?.id || null, ticket: [] };
+let state = { query: '', topic: 'all', year: 'all', quality: 'verified', status: 'all', activeId: TASKS.find(isVerified)?.id || TASKS[0]?.id || null, ticket: [] };
 let progress = loadProgress();
 
 function loadProgress() {
