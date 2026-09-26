@@ -1,5 +1,5 @@
 // v7 delta: only new/changed checked solutions.
-window.TFKP_TASK_OVERRIDES = Object.assign(window.TFKP_TASK_OVERRIDES || {}, {
+window.TFKP_TASK_OVERRIDES = window.TFKP_MERGE_OVERRIDES({
   "2023-осень-v1-n1": {
     "status": "verified",
     "statementPretty": "Одним из корней многочлена\n\n$$P(z)=9z^4+12z^3-5z^2+6z-1$$\n\nявляется\n\n$$z_1=\\frac{1-i\\sqrt{11}}6.$$\n\nНайти остальные корни.",

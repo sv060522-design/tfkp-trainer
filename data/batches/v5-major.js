@@ -1,4 +1,4 @@
-window.TFKP_TASK_OVERRIDES = Object.assign(window.TFKP_TASK_OVERRIDES || {}, {
+window.TFKP_TASK_OVERRIDES = window.TFKP_MERGE_OVERRIDES({
   "2021-осень-v1-n1": {
     "status": "verified",
     "statementPretty": "Функция \\(f(z)\\) регулярна в \\(\\mathbb C\\), и при этом\n\n$$\\operatorname{Re} f(z)=-3x^2y-4x^2+y^3+4y^2.$$\n\nНайти \\(\\operatorname{Im} f(z)\\).",

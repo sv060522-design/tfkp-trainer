@@ -24,10 +24,11 @@ function setP(id, patch) { progress[id] = { ...p(id), ...patch, updatedAt: new D
 function escapeHtml(str='') { return String(str).replace(/[&<>]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[s])); }
 
 function isVerified(t) {
-  return t.status === 'verified' || Boolean(t.statementPretty);
+  // A checked answer or an old status flag does not verify an OCR statement.
+  return Boolean(t.statementPretty);
 }
 function isNeedsReview(t) {
-  return t.status === 'needs-review' || (!isVerified(t) && /OCR|сверить|черновик/i.test([t.notes, t.status].join(' ')));
+  return !isVerified(t) && (t.status === 'verified' || t.status === 'needs-review' || /OCR|сверить|черновик/i.test([t.notes, t.status].join(' ')));
 }
 function taskStatusChip(t) {
   if (isVerified(t)) return '<span class="chip green">проверено</span>';
