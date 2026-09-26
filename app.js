@@ -11,8 +11,11 @@ function mergeTask(t) {
   return merged;
 }
 
-const TASKS = RAW_TASKS.map(mergeTask);
-let state = { query: '', topic: 'all', year: 'all', quality: 'verified', status: 'all', activeId: TASKS.find(isVerified)?.id || TASKS[0]?.id || null, ticket: [] };
+const ALL_TASKS = RAW_TASKS.map(mergeTask);
+// Only complete, transcribed cards are published in the study catalogue.
+// Keep unfinished source records in the repository for subsequent editorial batches.
+const TASKS = ALL_TASKS.filter(t => t.statementPretty && t.answer && t.solution);
+let state = { query: '', topic: 'all', year: 'all', quality: 'all', status: 'all', activeId: TASKS[0]?.id || null, ticket: [] };
 let progress = loadProgress();
 
 function loadProgress() {
@@ -193,11 +196,6 @@ function render(opts={}) {
             <select id="topic"><option value="all">Все темы</option>${topics.map(x=>`<option ${state.topic===x?'selected':''} value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('')}</select>
             <select id="year"><option value="all">Все годы</option>${years.map(x=>`<option ${state.year===x?'selected':''} value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('')}</select>
           </div>
-          <select id="quality">
-            <option value="all" ${state.quality==='all'?'selected':''}>Все условия</option>
-            <option value="verified" ${state.quality==='verified'?'selected':''}>Только проверенные</option>
-            <option value="needs-review" ${state.quality==='needs-review'?'selected':''}>Требуют сверки OCR</option>
-          </select>
           <select id="status">
             <option value="all" ${state.status==='all'?'selected':''}>Все задачи</option>
             <option value="solved" ${state.status==='solved'?'selected':''}>Только решённые</option>
@@ -224,7 +222,7 @@ function render(opts={}) {
       <main class="main">
         <section class="hero card">
           <h2>Письменная семестровая по ТФКП</h2>
-          <p>База собрана из старых вариантов, ответов и реальных отзывов. Зелёная метка «проверено» означает, что условие вручную переписано в читаемый математический вид. Красная метка «сверить OCR» означает, что формулу надо точечно перепроверить по исходному PDF.</p>
+          <p>Здесь показаны задачи, для которых условие сверено с источником и опубликованы ответ и полное решение. Новые проверенные варианты добавляются по мере редакторской сверки.</p>
           <div class="chips"><span class="chip blue">localStorage-прогресс</span><span class="chip green">${verified} проверенных</span><span class="chip">экспорт/импорт</span><span class="chip">случайный вариант</span></div>
         </section>
         ${active ? detail(active) : '<div class="card hero"><h2>Нет задач по фильтру</h2></div>'}
@@ -237,7 +235,6 @@ function render(opts={}) {
   $('#q').addEventListener('input', e => { state.query=e.target.value; render({ preserveFocus: true }); });
   $('#topic').addEventListener('change', e => { state.topic=e.target.value; render({ preserveFocus: false }); });
   $('#year').addEventListener('change', e => { state.year=e.target.value; render({ preserveFocus: false }); });
-  $('#quality').addEventListener('change', e => { state.quality=e.target.value; render({ preserveFocus: false }); });
   $('#status').addEventListener('change', e => { state.status=e.target.value; render({ preserveFocus: false }); });
   restoreFocus(focus);
   if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
@@ -261,7 +258,7 @@ function detail(t) {
     <section class="section"><h3>Подсказки</h3><ol>${(t.hints||[]).map(x=>`<li>${mdish(x)}</li>`).join('')}</ol></section>
     <section class="section"><h3>Маршрут решения</h3><ol>${(t.algorithm||[]).map(x=>`<li>${mdish(x)}</li>`).join('')}</ol></section>
     ${t.solution ? `<section class="section"><h3>Полное решение</h3><div class="solution-box">${mdish(t.solution)}</div></section>` : ''}
-    ${t.answer ? `<section class="section"><h3>Ответ / сверка</h3><div class="answer-box">${mdish(t.answer)}</div></section>` : `<section class="section"><h3>Ответ / сверка</h3><div class="note-box">Ответ пока не внесён. Эту задачу надо решить по методичкам и затем добавить в data/tasks.js или data/overrides.js.</div></section>`}
+    <section class="section"><h3>Ответ / сверка</h3><div class="answer-box">${mdish(t.answer)}</div></section>
   </article>`;
 }
 function ticketBlock() {
