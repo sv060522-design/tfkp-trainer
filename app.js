@@ -14,7 +14,10 @@ function mergeTask(t) {
 const ALL_TASKS = RAW_TASKS.map(mergeTask);
 // Only complete, transcribed cards are published in the study catalogue.
 // Keep unfinished source records in the repository for subsequent editorial batches.
-const TASKS = ALL_TASKS.filter(t => t.statementPretty && t.answer && t.solution);
+const TASKS = ALL_TASKS.filter(t => t.statementPretty && t.answer && t.solution)
+  .sort((a, b) => String(b.year).localeCompare(String(a.year), 'ru', { numeric: true })
+    || String(a.variant).localeCompare(String(b.variant), 'ru', { numeric: true })
+    || String(a.taskNo).localeCompare(String(b.taskNo), 'ru', { numeric: true }));
 let state = { query: '', topic: 'all', year: 'all', quality: 'all', status: 'all', activeId: TASKS[0]?.id || null, ticket: [] };
 let progress = loadProgress();
 
@@ -169,7 +172,7 @@ function render(opts={}) {
   const topics = uniq(TASKS.map(t=>t.topic));
   const years = uniq(TASKS.map(t=>t.year));
   const arr = filteredTasks();
-  const active = TASKS.find(t=>t.id===state.activeId) || arr[0] || TASKS[0];
+  const active = arr.find(t=>t.id===state.activeId) || arr[0] || null;
   if (active) state.activeId = active.id;
   const solved = TASKS.filter(t=>p(t.id).solved).length;
   const starred = TASKS.filter(t=>p(t.id).starred).length;
