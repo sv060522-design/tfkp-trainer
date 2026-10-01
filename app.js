@@ -280,8 +280,8 @@ function detail(t) {
       <button onclick="navigator.clipboard?.writeText(${JSON.stringify(plainTaskText(t))})">Копировать условие</button>
     </div>
     ${t.notes ? `<section class="section"><div class="note-box">${mdish(t.notes)}</div></section>` : ''}
-    <section class="section"><h3>Подсказки</h3><ol>${(t.hints||[]).map(x=>`<li>${mdish(x)}</li>`).join('')}</ol></section>
-    <section class="section"><h3>Маршрут решения</h3><ol>${(t.algorithm||[]).map(x=>`<li>${mdish(x)}</li>`).join('')}</ol></section>
+    ${t.hints?.length ? `<section class="section"><h3>Подсказки</h3><ol>${t.hints.map(x=>`<li>${mdish(x)}</li>`).join('')}</ol></section>` : ''}
+    ${t.algorithm?.length ? `<section class="section"><h3>Маршрут решения</h3><ol>${t.algorithm.map(x=>`<li>${mdish(x)}</li>`).join('')}</ol></section>` : ''}
     ${t.solution ? `<section class="section"><h3>Полное решение</h3><div class="solution-box">${mdish(t.solution)}${renderTaskDiagram(t)}</div></section>` : ''}
     <section class="section"><h3>Ответ / сверка</h3><div class="answer-box">${mdish(t.answer)}</div></section>
   </article>`;

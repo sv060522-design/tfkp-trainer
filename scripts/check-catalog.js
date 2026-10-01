@@ -34,6 +34,14 @@ for (const [variantId, count] of [
   assert.equal(published.filter(task => task.variantId === variantId).length, count, variantId);
 }
 assert(published.every(task => task.statementPretty.trim() && task.answer.trim() && task.solution.trim()));
+// An unescaped TeX command in a JS string can become a control character
+// (for example, the first two characters of the varphi command).
+for (const task of published) {
+  for (const field of ['statementPretty', 'answer', 'solution', 'hints', 'algorithm']) {
+    assert(!/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(String(task[field] || '')),
+      `${task.id}: invalid control character in ${field}`);
+  }
+}
 const before = context.window.TFKP_TASK_OVERRIDES['2022-2023-osen-v1-n1'];
 context.window.TFKP_MERGE_OVERRIDES({ '2022-2023-osen-v1-n1': { notes: 'merge check' } });
 assert.equal(context.window.TFKP_TASK_OVERRIDES['2022-2023-osen-v1-n1'].solution, before.solution);
