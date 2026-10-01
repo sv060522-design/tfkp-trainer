@@ -233,7 +233,7 @@ function render(opts={}) {
         <section class="hero card">
           <h2>Практика по ТФКП</h2>
           <p>Семестровые варианты прошлых лет и типовые задачи из пособий. У каждой карточки есть сверенное условие, ответ и полное решение. Выбирай тему, год или источник и сохраняй задачи для повторения.</p>
-          <div class="chips"><span class="chip blue">localStorage-прогресс</span><span class="chip green">${verified} проверенных</span><span class="chip">экспорт/импорт</span><span class="chip">случайный вариант</span></div>
+          <div class="chips"><span class="chip blue">прогресс в браузере</span><span class="chip green">${verified} проверенных</span><span class="chip">экспорт/импорт</span><span class="chip">случайный вариант</span></div>
         </section>
         ${active ? detail(active) : '<div class="card hero"><h2>Нет задач по фильтру</h2></div>'}
         ${ticketBlock()}

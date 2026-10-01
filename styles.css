@@ -43,8 +43,9 @@ button.small { padding: 6px 9px; border-radius: 9px; font-size: 13px; }
 .task-row.verified-row { border-left: 4px solid #7bbf9a; }
 .task-row.raw-row { border-left: 4px solid #e2c27d; }
 .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 9px; background: var(--blue-2); color: var(--blue); font-weight: 700; font-size: 13px; }
-.task-title { font-weight: 750; }
+.task-title { display: block; font-weight: 750; }
 .task-meta { color: var(--muted); font-size: 12px; margin-top: 3px; line-height: 1.35; }
+.task-row .task-meta { display: block; }
 .list-note { padding: 10px 4px; }
 .icons { display: flex; gap: 4px; color: var(--green); }
 .icon { border: none; padding: 2px 4px; background: transparent; font-size: 16px; }
