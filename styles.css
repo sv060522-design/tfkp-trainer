@@ -93,3 +93,11 @@ textarea { min-height: 90px; width: 100%; border: 1px solid var(--line); border-
 .solution-diagram { margin: 1.25rem 0; text-align: center; }
 .solution-diagram svg { display: block; width: 100%; max-width: 460px; margin: auto; background: #fff; border-radius: 12px; font: 15px sans-serif; }
 .solution-diagram figcaption { margin-top: .5rem; color: #64748b; font-size: .875rem; }
+.mapping-panels { display: grid; grid-template-columns: minmax(0,1fr) 24px minmax(0,1fr); align-items: center; gap: 6px; }
+.mapping-arrow { font-size: 24px; color: #475569; }
+.mapping-diagram svg { font-size: 12px; }
+@media (max-width: 600px) {
+  .mapping-panels { grid-template-columns: minmax(0,1fr); }
+  .mapping-arrow { transform: rotate(90deg); }
+  .mapping-diagram svg { max-width: 300px; }
+}

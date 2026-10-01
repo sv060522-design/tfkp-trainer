@@ -34,10 +34,18 @@ for (const [variantId, count] of [
   ['2006-2007-осень-v53', 6], ['2006-2007-осень-v54', 6],
   ['2007-2008-осень-v71', 7], ['2007-2008-осень-v72', 7],
   ['2007-2008-осень-v73', 7], ['2007-2008-осень-v74', 7],
+  ['2008-2009-осень-v81', 7], ['2008-2009-осень-v82', 7],
+  ['2008-2009-осень-v83', 7], ['2008-2009-осень-v84', 7],
 ]) {
   assert.equal(published.filter(task => task.variantId === variantId).length, count, variantId);
 }
 assert(published.every(task => task.statementPretty.trim() && task.answer.trim() && task.solution.trim()));
+const textbook = all.filter(task => task.type === 'textbook');
+assert.equal(textbook.length, 12, 'textbook practice count');
+assert(textbook.every(task => task.statementPretty && task.answer && task.solution && task.sourceLabel));
+assert(textbook.every(task => task.hints.length >= 2 && task.algorithm.length >= 3));
+assert.equal(new Set(textbook.map(task => task.variantId)).size, textbook.length,
+  'textbook examples must not be combined into a semester variant');
 // An unescaped TeX command in a JS string can become a control character
 // (for example, the first two characters of the varphi command).
 for (const task of published) {
@@ -50,4 +58,36 @@ const before = context.window.TFKP_TASK_OVERRIDES['2022-2023-osen-v1-n1'];
 context.window.TFKP_MERGE_OVERRIDES({ '2022-2023-osen-v1-n1': { notes: 'merge check' } });
 assert.equal(context.window.TFKP_TASK_OVERRIDES['2022-2023-osen-v1-n1'].solution, before.solution);
 
-console.log(`Catalog OK: ${published.length} complete cards from ${all.length} source records`);
+// Exercise the actual filter/render/progress code with a small DOM stub.
+// No browser storage from the user is touched by this in-memory check.
+const preservedId = '2008-2009-осень-v81-n1';
+const saved = new Map([['tfkp-trainer-progress-v2', JSON.stringify({
+  [preservedId]: { solved: true, starred: true }
+})]]);
+const appNode = { innerHTML: '' };
+const input = { addEventListener() {}, focus() {}, setSelectionRange() {}, value: '' };
+context.document = {
+  activeElement: null,
+  getElementById: id => id === 'app' ? appNode : input,
+  querySelector: () => input,
+};
+context.localStorage = { getItem: key => saved.get(key), setItem: (key, value) => saved.set(key, value) };
+vm.runInContext(fs.readFileSync(path.join(root, 'app.js'), 'utf8'), context, { filename: 'app.js' });
+assert.equal(vm.runInContext('TASKS.length', context), published.length);
+assert.equal(vm.runInContext(`p('${preservedId}').solved`, context), true, 'preserved progress');
+assert.equal(vm.runInContext("state.kind='textbook'; filteredTasks().length", context), 12);
+vm.runInContext('render(); makeTicket()', context);
+assert(appNode.innerHTML.includes('пример 1.9'), 'textbook example label');
+assert(appNode.innerHTML.includes('writeText(&quot;'), 'clipboard handler must escape attribute quotes');
+assert.equal(vm.runInContext('state.ticket.length', context), 0, 'textbook examples are not a semester');
+assert.equal(vm.runInContext("state.kind='semester'; state.year='2008/2009'; filteredTasks().length", context), 28);
+assert.equal(vm.runInContext("state.query='вариант 82'; filteredTasks().length", context), 7);
+vm.runInContext(`setP('${preservedId}', {starred:false})`, context);
+const after = JSON.parse(saved.get('tfkp-trainer-progress-v2'));
+assert.equal(after[preservedId].solved, true, 'progress merge preserves solved');
+assert.equal(after[preservedId].starred, false);
+for (const type of ['conformal-arc', 'hyperbolic-region', 'halfplane-disk']) {
+  const config = JSON.stringify({type, start:0, end:270, target:'1'});
+  assert(vm.runInContext(`renderConformalDiagram(${config})`, context).includes('<svg'));
+}
+console.log(`Catalog OK: ${published.length} complete cards from ${all.length} source records; filters, diagrams and progress passed`);

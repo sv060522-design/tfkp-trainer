@@ -18,7 +18,7 @@ const TASKS = ALL_TASKS.filter(t => t.statementPretty && t.answer && t.solution)
   .sort((a, b) => String(b.year).localeCompare(String(a.year), 'ru', { numeric: true })
     || String(a.variant).localeCompare(String(b.variant), 'ru', { numeric: true })
     || String(a.taskNo).localeCompare(String(b.taskNo), 'ru', { numeric: true }));
-let state = { query: '', topic: 'all', year: 'all', quality: 'all', status: 'all', activeId: TASKS[0]?.id || null, ticket: [] };
+let state = { query: '', topic: 'all', year: 'all', kind: 'all', quality: 'all', status: 'all', activeId: TASKS[0]?.id || null, ticket: [] };
 let progress = loadProgress();
 
 function loadProgress() {
@@ -27,7 +27,7 @@ function loadProgress() {
 function saveProgress() { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); }
 function p(id) { return progress[id] || {}; }
 function setP(id, patch) { progress[id] = { ...p(id), ...patch, updatedAt: new Date().toISOString() }; saveProgress(); render({ preserveFocus: false }); }
-function escapeHtml(str='') { return String(str).replace(/[&<>]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[s])); }
+function escapeHtml(str='') { return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
 
 function isVerified(t) {
   // A checked answer or an old status flag does not verify an OCR statement.
@@ -111,6 +111,8 @@ function filteredTasks() {
   return TASKS.filter(t => {
     if (state.topic !== 'all' && t.topic !== state.topic) return false;
     if (state.year !== 'all' && t.year !== state.year) return false;
+    if (state.kind === 'textbook' && t.type !== 'textbook') return false;
+    if (state.kind === 'semester' && t.type === 'textbook') return false;
     if (state.quality === 'verified' && !isVerified(t)) return false;
     if (state.quality === 'needs-review' && !isNeedsReview(t)) return false;
     if (state.status === 'solved' && !p(t.id).solved) return false;
@@ -199,6 +201,11 @@ function render(opts={}) {
             <select id="topic"><option value="all">Все темы</option>${topics.map(x=>`<option ${state.topic===x?'selected':''} value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('')}</select>
             <select id="year"><option value="all">Все годы</option>${years.map(x=>`<option ${state.year===x?'selected':''} value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('')}</select>
           </div>
+          <select id="kind" aria-label="Источник задач">
+            <option value="all" ${state.kind==='all'?'selected':''}>Все источники</option>
+            <option value="semester" ${state.kind==='semester'?'selected':''}>Семестровые и экзамены</option>
+            <option value="textbook" ${state.kind==='textbook'?'selected':''}>Задачи из пособий</option>
+          </select>
           <select id="status">
             <option value="all" ${state.status==='all'?'selected':''}>Все задачи</option>
             <option value="solved" ${state.status==='solved'?'selected':''}>Только решённые</option>
@@ -224,8 +231,8 @@ function render(opts={}) {
       </aside>
       <main class="main">
         <section class="hero card">
-          <h2>Письменная семестровая по ТФКП</h2>
-          <p>Здесь показаны задачи, для которых условие сверено с источником и опубликованы ответ и полное решение. Новые проверенные варианты добавляются по мере редакторской сверки.</p>
+          <h2>Практика по ТФКП</h2>
+          <p>Семестровые варианты прошлых лет и типовые задачи из пособий. У каждой карточки есть сверенное условие, ответ и полное решение. Выбирай тему, год или источник и сохраняй задачи для повторения.</p>
           <div class="chips"><span class="chip blue">localStorage-прогресс</span><span class="chip green">${verified} проверенных</span><span class="chip">экспорт/импорт</span><span class="chip">случайный вариант</span></div>
         </section>
         ${active ? detail(active) : '<div class="card hero"><h2>Нет задач по фильтру</h2></div>'}
@@ -238,12 +245,14 @@ function render(opts={}) {
   $('#q').addEventListener('input', e => { state.query=e.target.value; render({ preserveFocus: true }); });
   $('#topic').addEventListener('change', e => { state.topic=e.target.value; render({ preserveFocus: false }); });
   $('#year').addEventListener('change', e => { state.year=e.target.value; render({ preserveFocus: false }); });
+  $('#kind').addEventListener('change', e => { state.kind=e.target.value; render({ preserveFocus: false }); });
   $('#status').addEventListener('change', e => { state.status=e.target.value; render({ preserveFocus: false }); });
   restoreFocus(focus);
   if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
 }
 
 function renderTaskDiagram(t) {
+  if (['conformal-arc', 'hyperbolic-region', 'halfplane-disk'].includes(t.diagram?.type)) return renderConformalDiagram(t.diagram);
   if (t.diagram?.type !== 'rays') return '';
   const angles = t.diagram.angles || [];
   if (!angles.length || angles.length > 8 || !angles.every(Number.isFinite)) return '';
@@ -265,11 +274,49 @@ function renderTaskDiagram(t) {
   </svg><figcaption>Два луча с отмеченными углами. Начало координат входит в множество решений.</figcaption></figure>`;
 }
 
+function renderConformalDiagram(d) {
+  const axes = '<path d="M25 130H255 M135 225V20" fill="none" stroke="#94a3b8"/><text x="238" y="151">Re</text><text x="146" y="30">Im</text>';
+  let source, target, caption;
+  const disk = (boundary) => {
+    const mark = boundary === 'i' ? '<circle cx="135" cy="52" r="4" fill="#dc2626"/><text x="146" y="47">i</text>'
+      : boundary === '1' ? '<circle cx="213" cy="130" r="4" fill="#dc2626"/><text x="222" y="124">1</text>' : '';
+    return `<svg viewBox="0 0 280 260" role="img" aria-label="Образ: единичный круг"><circle cx="135" cy="130" r="78" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>${axes}<circle cx="135" cy="130" r="4" fill="#2563eb"/><text x="144" y="151">0</text>${mark}<text x="75" y="245">|w| &lt; 1</text></svg>`;
+  };
+  const halfplane = (sourceView) => `<svg viewBox="0 0 280 260" role="img" aria-label="Верхняя полуплоскость"><path d="M25 25H255V190H25Z" fill="#dbeafe"/><path d="M25 190H255 M135 225V20" fill="none" stroke="#94a3b8"/><text x="236" y="210">Re</text><text x="146" y="30">Im</text>${sourceView ? '<circle cx="135" cy="130" r="4" fill="#2563eb"/><text x="146" y="131">i</text>' : '<circle cx="135" cy="190" r="4" fill="#dc2626"/><text x="123" y="211">0</text><circle cx="205" cy="190" r="4" fill="#dc2626"/><text x="207" y="211">1</text>'}<text x="65" y="245">Im ${sourceView ? 'z' : 'w'} &gt; 0</text></svg>`;
+  if (d.type === 'conformal-arc') {
+    if (![d.start, d.end].every(Number.isFinite) || d.end <= d.start || d.end - d.start > 360) return '';
+    const points = Array.from({ length: 97 }, (_, k) => {
+      const angle = (d.start + (d.end - d.start) * k / 96) * Math.PI / 180;
+      return [135 + 78 * Math.cos(angle), 130 - 78 * Math.sin(angle)];
+    });
+    const path = points.map(([x, y], k) => `${k ? 'L' : 'M'}${x.toFixed(2)} ${y.toFixed(2)}`).join(' ');
+    const endpoints = [points[0], points.at(-1)].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4" fill="#dc2626"/>`).join('');
+    source = `<svg viewBox="0 0 280 260" role="img" aria-label="Исходная область: плоскость с удалённой дугой"><path d="M15 15H265V228H15Z" fill="#eff6ff"/>${axes}<circle cx="135" cy="130" r="78" fill="none" stroke="#cbd5e1" stroke-dasharray="4 4"/><path d="${path}" fill="none" stroke="#dc2626" stroke-width="4"/>${endpoints}<circle cx="135" cy="130" r="4" fill="#2563eb"/><text x="145" y="151">0</text><text x="221" y="122">1</text><text x="146" y="49">i</text><text x="142" y="222">−i</text><text x="53" y="245">Красная дуга удалена</text></svg>`;
+    target = disk(d.target);
+    caption = 'Исходная область содержит точки с обеих сторон окружности. Удалена только красная дуга; синяя точка 0 переходит в центр круга.';
+  } else if (d.type === 'hyperbolic-region') {
+    const points = Array.from({ length: 81 }, (_, k) => {
+      const x = .32 + 3 * k / 80;
+      return [45 + 58 * x, 215 - 58 / x];
+    });
+    const curve = points.map(([x, y], k) => `${k ? 'L' : 'M'}${x.toFixed(2)} ${y.toFixed(2)}`).join(' ');
+    const region = `M45 25L${points[0].join(' ')} ${points.map(([x,y])=>`L${x} ${y}`).join(' ')} L238 215H45Z`;
+    source = `<svg viewBox="0 0 280 260" role="img" aria-label="Первый квадрант под гиперболой xy=1"><path d="${region}" fill="#dbeafe"/><path d="M25 215H255 M45 228V20" fill="none" stroke="#94a3b8"/><path d="${curve}" fill="none" stroke="#2563eb" stroke-width="2"/><circle cx="103" cy="157" r="4" fill="#dc2626"/><text x="110" y="153">1+i</text><circle cx="103" cy="215" r="4" fill="#dc2626"/><text x="105" y="235">1</text><text x="159" y="179">xy=1</text><text x="238" y="235">Re</text><text x="55" y="30">Im</text><text x="75" y="245">x &gt; 0, y &gt; 0, xy &lt; 1</text></svg>`;
+    target = halfplane(false);
+    caption = 'Квадрат превращает область под гиперболой в полосу 0 < Im ζ < 2. Экспонента и положительный сдвиг дают верхнюю полуплоскость; 1+i → 0, 1 → 1.';
+  } else {
+    source = halfplane(true);
+    target = disk();
+    caption = 'Точка i переходит в центр круга. Вещественная ось переходит в единичную окружность.';
+  }
+  return `<figure class="solution-diagram mapping-diagram"><div class="mapping-panels"><div>${source}</div><span class="mapping-arrow" aria-hidden="true">→</span><div>${target}</div></div><figcaption>${escapeHtml(caption)}</figcaption></figure>`;
+}
+
 function detail(t) {
   const pr = p(t.id);
   return `<article class="detail card">
     <div class="detail-head">
-      <div class="chips"><span class="chip blue">${escapeHtml(t.topic)}</span><span class="chip">${escapeHtml(t.year)}</span><span class="chip">вариант ${escapeHtml(t.variant)}</span>${taskStatusChip(t)}</div>
+      <div class="chips"><span class="chip blue">${escapeHtml(t.topic)}</span><span class="chip">${escapeHtml(t.year)}</span><span class="chip">${t.type === 'textbook' ? 'пример' : 'вариант'} ${escapeHtml(t.variant)}</span>${taskStatusChip(t)}</div>
       <h2>${escapeHtml(t.title)}</h2>
       <div class="task-meta">Источник: ${escapeHtml(t.sourceLabel)} · ID: ${escapeHtml(t.id)}</div>
     </div>
@@ -277,7 +324,7 @@ function detail(t) {
     <div class="actions">
       <button class="${pr.solved?'primary':''}" onclick="setP('${t.id}', {solved:${!pr.solved}})">${pr.solved?'✓ Решено':'Отметить решённой'}</button>
       <button onclick="setP('${t.id}', {starred:${!pr.starred}})">${pr.starred?'★ В повторении':'☆ В повторение'}</button>
-      <button onclick="navigator.clipboard?.writeText(${JSON.stringify(plainTaskText(t))})">Копировать условие</button>
+      <button onclick="navigator.clipboard?.writeText(${escapeHtml(JSON.stringify(plainTaskText(t)))})">Копировать условие</button>
     </div>
     ${t.notes ? `<section class="section"><div class="note-box">${mdish(t.notes)}</div></section>` : ''}
     ${t.hints?.length ? `<section class="section"><h3>Подсказки</h3><ol>${t.hints.map(x=>`<li>${mdish(x)}</li>`).join('')}</ol></section>` : ''}
