@@ -27,6 +27,7 @@ for (const [variantId, count] of [
   ['2003-2004-осень-v3', 6], ['2003-2004-осень-v4', 6],
   ['2006-2007-весна-ФИВТ-v71', 6], ['2014-2015-осень-v41', 7],
   ['2006-2007-весна-ФИВТ-v72', 6],
+  ['2006-2007-весна-ФИВТ-v73', 6], ['2006-2007-весна-ФИВТ-v74', 6],
 ]) {
   assert.equal(published.filter(task => task.variantId === variantId).length, count, variantId);
 }
