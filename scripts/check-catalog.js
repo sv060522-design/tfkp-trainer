@@ -20,6 +20,15 @@ const published = all.filter(task => task.statementPretty && task.answer && task
 assert(published.length > 0, 'empty catalogue');
 assert.equal(all.filter(task => task.variantId === '2022-2023-osen-v1').length, 6);
 assert.equal(published.filter(task => task.variantId === '2022-2023-osen-v1').length, 6);
+for (const [variantId, count] of [
+  ['2002-2003-осень-v1', 6], ['2002-2003-осень-v2', 6],
+  ['2002-2003-осень-v3', 6], ['2002-2003-осень-v4', 6],
+  ['2003-2004-осень-v1', 6], ['2003-2004-осень-v2', 6],
+  ['2003-2004-осень-v3', 6], ['2003-2004-осень-v4', 6],
+  ['2006-2007-весна-ФИВТ-v71', 6], ['2014-2015-осень-v41', 7],
+]) {
+  assert.equal(published.filter(task => task.variantId === variantId).length, count, variantId);
+}
 assert(published.every(task => task.statementPretty.trim() && task.answer.trim() && task.solution.trim()));
 const before = context.window.TFKP_TASK_OVERRIDES['2022-2023-osen-v1-n1'];
 context.window.TFKP_MERGE_OVERRIDES({ '2022-2023-osen-v1-n1': { notes: 'merge check' } });
