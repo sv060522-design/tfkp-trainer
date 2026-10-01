@@ -90,3 +90,6 @@ textarea { min-height: 90px; width: 100%; border: 1px solid var(--line); border-
   .statement { padding: 20px; }
   .statement-rich { font-size: 18px; }
 }
+.solution-diagram { margin: 1.25rem 0; text-align: center; }
+.solution-diagram svg { display: block; width: 100%; max-width: 460px; margin: auto; background: #fff; border-radius: 12px; font: 15px sans-serif; }
+.solution-diagram figcaption { margin-top: .5rem; color: #64748b; font-size: .875rem; }

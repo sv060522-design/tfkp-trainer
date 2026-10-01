@@ -243,6 +243,28 @@ function render(opts={}) {
   if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
 }
 
+function renderTaskDiagram(t) {
+  if (t.diagram?.type !== 'rays') return '';
+  const angles = t.diagram.angles || [];
+  if (!angles.length || angles.length > 8 || !angles.every(Number.isFinite)) return '';
+  const labels = t.diagram.labels || [];
+  const rays = angles.map((degrees, index) => {
+    const angle = degrees * Math.PI / 180;
+    const x = 230 + 135 * Math.cos(angle), y = 160 - 135 * Math.sin(angle);
+    const lx = 230 + 155 * Math.cos(angle), ly = 160 - 155 * Math.sin(angle);
+    return `<line x1="230" y1="160" x2="${x}" y2="${y}" stroke="#2563eb" stroke-width="3" marker-end="url(#solution-ray-arrow)" />
+      <text x="${lx}" y="${ly + 5}" text-anchor="${Math.cos(angle) >= 0 ? 'start' : 'end'}" fill="#1d4ed8">${escapeHtml(labels[index] || `${degrees}°`)}</text>`;
+  }).join('');
+  return `<figure class="solution-diagram"><svg viewBox="0 0 460 320" role="img" aria-label="Множество решений на комплексной плоскости: два луча из начала координат">
+    <defs><marker id="solution-axis-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#64748b" /></marker>
+    <marker id="solution-ray-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7" fill="#2563eb" /></marker></defs>
+    <line x1="40" y1="160" x2="420" y2="160" stroke="#64748b" marker-end="url(#solution-axis-arrow)" />
+    <line x1="230" y1="295" x2="230" y2="25" stroke="#64748b" marker-end="url(#solution-axis-arrow)" />
+    <text x="399" y="185" fill="#475569">Re z</text><text x="240" y="31" fill="#475569">Im z</text>
+    ${rays}<circle cx="230" cy="160" r="4" fill="#2563eb" /><text x="239" y="181" fill="#475569">0</text>
+  </svg><figcaption>Два луча с отмеченными углами. Начало координат входит в множество решений.</figcaption></figure>`;
+}
+
 function detail(t) {
   const pr = p(t.id);
   return `<article class="detail card">
@@ -260,7 +282,7 @@ function detail(t) {
     ${t.notes ? `<section class="section"><div class="note-box">${mdish(t.notes)}</div></section>` : ''}
     <section class="section"><h3>Подсказки</h3><ol>${(t.hints||[]).map(x=>`<li>${mdish(x)}</li>`).join('')}</ol></section>
     <section class="section"><h3>Маршрут решения</h3><ol>${(t.algorithm||[]).map(x=>`<li>${mdish(x)}</li>`).join('')}</ol></section>
-    ${t.solution ? `<section class="section"><h3>Полное решение</h3><div class="solution-box">${mdish(t.solution)}</div></section>` : ''}
+    ${t.solution ? `<section class="section"><h3>Полное решение</h3><div class="solution-box">${mdish(t.solution)}${renderTaskDiagram(t)}</div></section>` : ''}
     <section class="section"><h3>Ответ / сверка</h3><div class="answer-box">${mdish(t.answer)}</div></section>
   </article>`;
 }
