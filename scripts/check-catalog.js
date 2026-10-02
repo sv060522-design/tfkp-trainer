@@ -123,4 +123,18 @@ for (const type of ['conformal-arc', 'hyperbolic-region', 'halfplane-disk']) {
 }
 assert(vm.runInContext(`renderBranchDiagram({range:2, segments:[[[-1,0],[1,0]]], points:[{at:[0,1],label:'i'}]})`, context).includes('<svg'));
 assert(vm.runInContext(`renderSectorDiagram({caption:'test'})`, context).includes('<svg'));
+// Check that export snapshots current marks into a downloadable JSON file.
+let exportedBlob, clicked = false, revoked = false;
+const exportLink = {click() { clicked = true; }};
+context.Blob = class { constructor(parts, options) { this.parts = parts; this.type = options.type; } };
+context.URL = {
+  createObjectURL(blob) { exportedBlob = blob; return 'blob:test-export'; },
+  revokeObjectURL(url) { assert.equal(url, 'blob:test-export'); revoked = true; }
+};
+context.document.createElement = tag => { assert.equal(tag, 'a'); return exportLink; };
+vm.runInContext('exportProgress()', context);
+assert.equal(exportedBlob.type, 'application/json');
+assert.equal(exportLink.download, 'tfkp-progress.json');
+assert.equal(JSON.stringify(JSON.parse(exportedBlob.parts.join(''))), vm.runInContext('JSON.stringify(progress)', context));
+assert(clicked && revoked, 'download is triggered and its temporary URL is released');
 console.log(`Catalog OK: ${published.length} complete cards from ${all.length} source records; filters, diagrams and progress passed`);
