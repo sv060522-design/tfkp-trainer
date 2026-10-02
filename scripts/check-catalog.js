@@ -52,7 +52,14 @@ for (let v=1; v<=4; v++) {
   const tasks = published.filter(task => task.variantId === `2001-2002-осень-v${v}`);
   assert.equal(tasks.length, 6, 'split autumn 2001 variant');
   assert.deepEqual(tasks.map(task => String(task.taskNo)).sort(), ['1','2','3','4','5','6']);
+  assert.equal(tasks.find(task => task.taskNo === '3').topic, 'Интегралы по вещественной оси');
+  assert.equal(tasks.find(task => task.taskNo === '4').topic, 'Контурные интегралы и вычеты');
 }
+for (const [id, topic] of [
+  ['1998-1999-осень-v4-n3', 'Контурные интегралы и вычеты'],
+  ['2002-2003-осень-v2-n5', 'Интегралы с алгебраической ветвью'],
+  ['kolesnikova-2016-example-1-14', 'Ряды Лорана и Тейлора'],
+]) assert.equal(published.find(task => task.id === id).topic, topic);
 assert(textbook.every(task => task.statementPretty && task.answer && task.solution && task.sourceLabel));
 assert(textbook.every(task => task.hints.length >= 2 && task.algorithm.length >= 3));
 assert.equal(new Set(textbook.map(task => task.variantId)).size, textbook.length,
