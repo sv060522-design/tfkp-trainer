@@ -12,19 +12,44 @@ function mergeTask(t) {
 }
 
 const ALL_TASKS = RAW_TASKS.map(mergeTask);
-// Only complete, transcribed cards are published in the study catalogue.
-// Keep unfinished source records in the repository for subsequent editorial batches.
-const TASKS = ALL_TASKS.filter(t => t.statementPretty && t.answer && t.solution)
+// Exam recollections are source notes, not exercises with recoverable conditions.
+const SOURCE_NOTES = ALL_TASKS.filter(t => t.status === 'raw-memory');
+const STUDY_TASKS = ALL_TASKS.filter(t => t.status !== 'raw-memory');
+const TASKS = STUDY_TASKS.filter(t => t.statementPretty && t.answer && t.solution)
   .sort((a, b) => String(b.year).localeCompare(String(a.year), 'ru', { numeric: true })
     || String(a.variant).localeCompare(String(b.variant), 'ru', { numeric: true })
     || String(a.taskNo).localeCompare(String(b.taskNo), 'ru', { numeric: true }));
 let state = { query: '', topic: 'all', year: 'all', kind: 'all', quality: 'all', status: 'all', activeId: TASKS[0]?.id || null, ticket: [] };
+let progressNotice = '';
 let progress = loadProgress();
 
-function loadProgress() {
-  try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch { return {}; }
+function validProgress(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    && Object.values(value).every(entry => entry !== null && typeof entry === 'object'
+      && !Array.isArray(entry)
+      && (entry.solved === undefined || typeof entry.solved === 'boolean')
+      && (entry.starred === undefined || typeof entry.starred === 'boolean'));
 }
-function saveProgress() { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); }
+function loadProgress() {
+  try {
+    const value = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+    if (!validProgress(value)) throw new Error('Invalid progress');
+    return value;
+  } catch {
+    progressNotice = 'Не удалось прочитать сохранённые отметки. Можно восстановить их из экспортированного JSON.';
+    return {};
+  }
+}
+function saveProgress(value = progress) {
+  try {
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(value));
+    progressNotice = '';
+    return true;
+  } catch {
+    progressNotice = 'Браузер не сохранил изменения. Экспортируй прогресс перед закрытием страницы.';
+    return false;
+  }
+}
 function p(id) { return progress[id] || {}; }
 function setP(id, patch) { progress[id] = { ...p(id), ...patch, updatedAt: new Date().toISOString() }; saveProgress(); render({ preserveFocus: false }); }
 function escapeHtml(str='') { return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
@@ -112,7 +137,8 @@ function filteredTasks() {
     if (state.topic !== 'all' && t.topic !== state.topic) return false;
     if (state.year !== 'all' && t.year !== state.year) return false;
     if (state.kind === 'textbook' && t.type !== 'textbook') return false;
-    if (state.kind === 'semester' && t.type === 'textbook') return false;
+    if (state.kind === 'semester' && t.type !== 'semester') return false;
+    if (state.kind === 'oral' && t.type !== 'oral') return false;
     if (state.quality === 'verified' && !isVerified(t)) return false;
     if (state.quality === 'needs-review' && !isNeedsReview(t)) return false;
     if (state.status === 'solved' && !p(t.id).solved) return false;
@@ -152,8 +178,17 @@ function exportProgress() {
 function importProgress() {
   const txt = $('#importBox').value.trim();
   if (!txt) return alert('Вставь JSON прогресса в поле ниже.');
-  try { progress = JSON.parse(txt); saveProgress(); render({ preserveFocus: false }); alert('Прогресс импортирован.'); }
-  catch(e) { alert('Не получилось прочитать JSON.'); }
+  let value;
+  try {
+    value = JSON.parse(txt);
+    if (!validProgress(value)) throw new Error('Invalid progress');
+  } catch {
+    return alert('Неверный формат прогресса. Нужен JSON из кнопки «Экспорт прогресса». Текущие отметки сохранены.');
+  }
+  if (!saveProgress(value)) { render({ preserveFocus: false }); return; }
+  progress = value;
+  render({ preserveFocus: false });
+  alert('Прогресс импортирован.');
 }
 
 function rememberFocus() {
@@ -204,6 +239,7 @@ function render(opts={}) {
           <select id="kind" aria-label="Источник задач">
             <option value="all" ${state.kind==='all'?'selected':''}>Все источники</option>
             <option value="semester" ${state.kind==='semester'?'selected':''}>Семестровые и экзамены</option>
+            <option value="oral" ${state.kind==='oral'?'selected':''}>Устные задачи</option>
             <option value="textbook" ${state.kind==='textbook'?'selected':''}>Задачи из пособий</option>
           </select>
           <select id="status">
@@ -235,6 +271,7 @@ function render(opts={}) {
           <p>Семестровые варианты прошлых лет и типовые задачи из пособий. У каждой карточки есть сверенное условие, ответ и полное решение. Выбирай тему, год или источник и сохраняй задачи для повторения.</p>
           <div class="chips"><span class="chip blue">прогресс в браузере</span><span class="chip green">${verified} проверенных</span><span class="chip">экспорт/импорт</span><span class="chip">случайный вариант</span></div>
         </section>
+        ${progressNotice ? `<div class="quality-note" role="alert">${escapeHtml(progressNotice)}</div>` : ''}
         ${active ? detail(active) : '<div class="card hero"><h2>Нет задач по фильтру</h2></div>'}
         ${ticketBlock()}
         ${progressBlock()}
@@ -252,6 +289,8 @@ function render(opts={}) {
 }
 
 function renderTaskDiagram(t) {
+  if (t.diagram?.type === 'branch-cut') return renderBranchDiagram(t.diagram);
+  if (t.diagram?.type === 'sector-map') return renderSectorDiagram(t.diagram);
   if (['conformal-arc', 'hyperbolic-region', 'halfplane-disk'].includes(t.diagram?.type)) return renderConformalDiagram(t.diagram);
   if (t.diagram?.type !== 'rays') return '';
   const angles = t.diagram.angles || [];
@@ -272,6 +311,43 @@ function renderTaskDiagram(t) {
     <text x="399" y="185" fill="#475569">Re z</text><text x="240" y="31" fill="#475569">Im z</text>
     ${rays}<circle cx="230" cy="160" r="4" fill="#2563eb" /><text x="239" y="181" fill="#475569">0</text>
   </svg><figcaption>Два луча с отмеченными углами. Начало координат входит в множество решений.</figcaption></figure>`;
+}
+
+function renderBranchDiagram(d) {
+  const range = d.range || 3;
+  if (!Number.isFinite(range) || range <= 0) return '';
+  const scale = 150 / range;
+  const xy = p => [210 + scale * p[0], 185 - scale * p[1]];
+  const path = points => points.map((p, i) => `${i ? 'L' : 'M'}${xy(p).join(' ')}`).join(' ');
+  const segments = (d.segments || []).map(p => `<path d="${path(p)}" stroke="#dc2626" stroke-width="4" fill="none"/>`).join('');
+  const arcs = (d.arcs || []).map(a => {
+    const points = Array.from({length: 81}, (_, i) => {
+      const angle = (a.start + (a.end - a.start) * i / 80) * Math.PI / 180;
+      return [a.center[0] + a.r * Math.cos(angle), a.center[1] + a.r * Math.sin(angle)];
+    });
+    return `<path d="${path(points)}" stroke="#dc2626" stroke-width="4" fill="none"/>`;
+  }).join('');
+  const circles = (d.circles || []).map(c => {
+    const [x,y] = xy(c.center);
+    return `<circle cx="${x}" cy="${y}" r="${c.r * scale}" fill="none" stroke="${c.color === '#dc2626' ? '#dc2626' : '#2563eb'}" stroke-width="2" ${c.dashed ? 'stroke-dasharray="5 4"' : ''}/>`;
+  }).join('');
+  const contours = (d.contours || []).map(p => `<path d="${path(p)}" stroke="#2563eb" stroke-width="2" fill="none"/>`).join('');
+  const points = (d.points || []).map(p => {
+    const [x,y] = xy(p.at);
+    return `<circle cx="${x}" cy="${y}" r="4" fill="#1d4ed8"/><text x="${x + 9}" y="${y + 18}" fill="#1e3a8a">${escapeHtml(p.label)}</text>`;
+  }).join('');
+  return `<figure class="solution-diagram"><svg viewBox="0 0 420 370" role="img" aria-label="Разрез и точки нормировки на комплексной плоскости">
+    <path d="M20 185H400 M210 350V20" stroke="#94a3b8" fill="none"/><text x="362" y="177">Re z</text><text x="220" y="26">Im z</text>
+    ${circles}${contours}${segments}${arcs}${points}</svg><figcaption>${escapeHtml(d.caption || 'Красным обозначен удалённый разрез.')}</figcaption></figure>`;
+}
+
+function renderSectorDiagram(d) {
+  return `<figure class="solution-diagram mapping-diagram"><div class="mapping-panels"><div><svg viewBox="0 0 280 260" role="img" aria-label="Угол −π/4 меньше arg z меньше π/4">
+    <path d="M70 130L190 10H265V250H190Z" fill="#dbeafe"/><path d="M70 130L190 10 M70 130L190 250" stroke="#2563eb" stroke-width="2" fill="none"/>
+    <path d="M20 130H265 M70 245V15" stroke="#94a3b8" fill="none"/><circle cx="70" cy="130" r="4" fill="white" stroke="#2563eb"/>
+    <circle cx="145" cy="130" r="4" fill="#1d4ed8"/><text x="141" y="150">1</text><text x="57" y="150">0</text><text x="120" y="69">π/4</text><text x="120" y="202">−π/4</text></svg></div><span class="mapping-arrow" aria-hidden="true">→</span><div><svg viewBox="0 0 280 260" role="img" aria-label="Единичный круг">
+    <circle cx="135" cy="130" r="78" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><path d="M25 130H255 M135 225V20" stroke="#94a3b8" fill="none"/>
+    <circle cx="135" cy="130" r="4" fill="#1d4ed8"/><text x="146" y="151">0</text><text x="75" y="245">|w| &lt; 1</text></svg></div></div><figcaption>${escapeHtml(d.caption)}</figcaption></figure>`;
 }
 
 function renderConformalDiagram(d) {
@@ -316,7 +392,7 @@ function detail(t) {
   const pr = p(t.id);
   return `<article class="detail card">
     <div class="detail-head">
-      <div class="chips"><span class="chip blue">${escapeHtml(t.topic)}</span><span class="chip">${escapeHtml(t.year)}</span><span class="chip">${t.type === 'textbook' ? 'пример' : 'вариант'} ${escapeHtml(t.variant)}</span>${taskStatusChip(t)}</div>
+      <div class="chips"><span class="chip blue">${escapeHtml(t.topic)}</span><span class="chip">${escapeHtml(t.year)}</span><span class="chip">${t.type === 'textbook' ? 'пример' : t.type === 'oral' ? 'устная задача' : 'вариант'} ${escapeHtml(t.variant)}</span>${taskStatusChip(t)}</div>
       <h2>${escapeHtml(t.title)}</h2>
       <div class="task-meta">Источник: ${escapeHtml(t.sourceLabel)} · ID: ${escapeHtml(t.id)}</div>
     </div>
@@ -338,6 +414,6 @@ function ticketBlock() {
   return `<section class="ticket card"><h3>Собранный вариант</h3><div class="task-meta">${escapeHtml(state.ticket[0].year)} · вариант ${escapeHtml(state.ticket[0].variant)}</div><div class="ticket-list">${state.ticket.map(t=>`<button class="task-row" onclick="state.activeId='${t.id}'; render({preserveFocus:false});"><span class="badge">${escapeHtml(t.taskNo)}</span><span><span class="task-title">${escapeHtml(t.title)}</span><span class="task-meta">${escapeHtml(t.topic)}</span></span><span></span></button>`).join('')}</div></section>`;
 }
 function progressBlock() {
-  return `<section class="ticket card"><h3>Прогресс</h3><p class="task-meta">Прогресс хранится локально в браузере по ключу <b>${PROGRESS_KEY}</b>. При обновлении сайта он сохранится, если не менять ID старых задач.</p><div class="progress-tools"><button onclick="exportProgress()">Экспорт прогресса</button><button onclick="importProgress()">Импорт прогресса</button><button onclick="if(confirm('Стереть прогресс?')){progress={};saveProgress();render({preserveFocus:false});}">Сбросить</button></div><textarea id="importBox" placeholder="Сюда можно вставить JSON прогресса для импорта"></textarea></section>`;
+  return `<section class="ticket card"><h3>Прогресс</h3><p class="task-meta">Отметки «Решено» и «В повторении» автоматически сохраняются в этом браузере и остаются после перезагрузки и обновления сайта. Для резервной копии или переноса в другой браузер используй экспорт и импорт.</p><div class="progress-tools"><button onclick="exportProgress()">Экспорт прогресса</button><button onclick="importProgress()">Импорт прогресса</button><button onclick="if(confirm('Стереть прогресс?')){progress={};saveProgress();render({preserveFocus:false});}">Сбросить</button></div><textarea id="importBox" placeholder="Сюда можно вставить JSON прогресса для импорта"></textarea></section>`;
 }
 render();
