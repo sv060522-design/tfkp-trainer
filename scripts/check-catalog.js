@@ -208,12 +208,18 @@ for (const t of reviewed.filter(t=>t.diagram)) {
   assert(output.includes('<svg'), t.id + ': missing SVG');
   assert(!/NaN|undefined/.test(output), t.id + ': invalid SVG');
 }
-assert.equal(nodes.get('app').dataset.build, '2026-10-04-v33');
+assert.equal(nodes.get('app').dataset.build, '2026-10-04-v34');
 // A disclosed solution must update the displayed status immediately, including
 // the short solution; a manually closed block stays closed after a rerender.
 const reading=boot({hash:'#task='+encodeURIComponent(linkedId)});
 reading.run(`setLearningStatus('${linkedId}','not-started');onDisclosureToggle({dataset:{task:'${linkedId}',part:'short'},open:true})`);
 assert.equal(reading.run(`learningStatus('${linkedId}')`),'viewed');
+// A manual choice also wins if the previous genuine opening event is still
+// queued when the user changes the status.
+const manual=boot({hash:'#task='+encodeURIComponent(linkedId)});
+manual.ctx.document.querySelectorAll=()=>[{dataset:{task:linkedId,part:'short'},open:true,addEventListener(){}}];
+manual.run(`setLearningStatus('${linkedId}','not-started');onDisclosureToggle({dataset:{task:'${linkedId}',part:'short'},open:true});setP('${linkedId}',{starred:true})`);
+assert.equal(manual.run(`learningStatus('${linkedId}')`),'not-started');
 assert.match(reading.nodes.get('app').innerHTML,/<option value="viewed" selected>/);
 reading.run(`revealAll('${linkedId}');onDisclosureToggle({dataset:{task:'${linkedId}',part:'answer'},open:false});render()`);
 assert(!reading.nodes.get('app').innerHTML.includes('data-part="answer" open'));
