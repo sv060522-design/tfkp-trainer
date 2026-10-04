@@ -208,7 +208,7 @@ for (const t of reviewed.filter(t=>t.diagram)) {
   assert(output.includes('<svg'), t.id + ': missing SVG');
   assert(!/NaN|undefined/.test(output), t.id + ': invalid SVG');
 }
-assert.equal(nodes.get('app').dataset.build, '2026-10-04-v30');
+assert.equal(nodes.get('app').dataset.build, '2026-10-04-v31');
 // A disclosed solution must update the displayed status immediately, including
 // the short solution; a manually closed block stays closed after a rerender.
 const reading=boot({hash:'#task='+encodeURIComponent(linkedId)});
@@ -232,4 +232,15 @@ assert.equal(reading.run(`p('${linkedId}').solved`),false);
 assert.equal(boot().run(`learningStatus('${linkedId}')`),'viewed');
 assert.equal(reading.run('p("old-unavailable-id").starred'),true);
 assert.equal(reading.run('state.quality="needs-review";state.query="";filteredTasks().length'),1);
+// A close followed immediately by another render can precede the native toggle
+// event. The DOM state must still win over the last observed open state.
+const queued=boot({hash:'#task='+encodeURIComponent(linkedId)});
+queued.run(`revealAll('${linkedId}')`);
+queued.ctx.document.querySelectorAll=()=>[{dataset:{task:linkedId,part:'answer'},open:false,addEventListener(){}}];
+queued.run(`setLearningStatus('${linkedId}','solved-self')`);
+assert(!queued.nodes.get('app').innerHTML.includes('data-part="answer" open'));
+queued.run(`revealAll('${linkedId}')`);
+assert(queued.nodes.get('app').innerHTML.includes('data-part="answer" open'));
+queued.run(`hideAll('${linkedId}')`);
+assert(!/<details[^>]*class="learning-block"[^>]*\sopen(?:\s|>)/.test(queued.nodes.get('app').innerHTML));
 console.log('Catalog and app OK: 500 solved tasks, quality/taxonomy/all filters, full variants, training, 501 pagination, deep links, safe rendering, migration/export/import/reload, SVGs');

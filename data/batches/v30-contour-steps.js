@@ -1462,4 +1462,4 @@ window.TFKP_MERGE_OVERRIDES({
     }
   }
 });
-window.TFKP_BUILD = "2026-10-04-v30";
+window.TFKP_BUILD = "2026-10-04-v31";
