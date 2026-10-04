@@ -208,7 +208,7 @@ for (const t of reviewed.filter(t=>t.diagram)) {
   assert(output.includes('<svg'), t.id + ': missing SVG');
   assert(!/NaN|undefined/.test(output), t.id + ': invalid SVG');
 }
-assert.equal(nodes.get('app').dataset.build, '2026-10-04-v31');
+assert.equal(nodes.get('app').dataset.build, '2026-10-04-v32');
 // A disclosed solution must update the displayed status immediately, including
 // the short solution; a manually closed block stays closed after a rerender.
 const reading=boot({hash:'#task='+encodeURIComponent(linkedId)});
@@ -231,6 +231,12 @@ reading.run('importProgress()');
 assert.equal(reading.run(`p('${linkedId}').solved`),false);
 assert.equal(boot().run(`learningStatus('${linkedId}')`),'viewed');
 assert.equal(reading.run('p("old-unavailable-id").starred'),true);
+reading.run('exportProgress()');
+const textBackup=JSON.parse(reading.nodes.get('importBox').value);
+assert.equal(textBackup[linkedId].learningStatus,'viewed');
+assert.equal(textBackup['old-unavailable-id'].starred,true);
+reading.run('render()');
+assert.deepEqual(JSON.parse(reading.nodes.get('importBox').value),textBackup);
 assert.equal(reading.run('state.quality="needs-review";state.query="";filteredTasks().length'),1);
 // A close followed immediately by another render can precede the native toggle
 // event. The DOM state must still win over the last observed open state.
