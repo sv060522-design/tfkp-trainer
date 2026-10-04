@@ -208,7 +208,7 @@ for (const t of reviewed.filter(t=>t.diagram)) {
   assert(output.includes('<svg'), t.id + ': missing SVG');
   assert(!/NaN|undefined/.test(output), t.id + ': invalid SVG');
 }
-assert.equal(nodes.get('app').dataset.build, '2026-10-04-v32');
+assert.equal(nodes.get('app').dataset.build, '2026-10-04-v33');
 // A disclosed solution must update the displayed status immediately, including
 // the short solution; a manually closed block stays closed after a rerender.
 const reading=boot({hash:'#task='+encodeURIComponent(linkedId)});
@@ -249,4 +249,10 @@ queued.run(`revealAll('${linkedId}')`);
 assert(queued.nodes.get('app').innerHTML.includes('data-part="answer" open'));
 queued.run(`hideAll('${linkedId}')`);
 assert(!/<details[^>]*class="learning-block"[^>]*\sopen(?:\s|>)/.test(queued.nodes.get('app').innerHTML));
+// Recreating an already open solution after a manual status change is not a
+// new viewing action. A later genuine close/open is a new viewing action.
+reading.run(`revealAll('${linkedId}');setLearningStatus('${linkedId}','not-started');onDisclosureToggle({dataset:{task:'${linkedId}',part:'short'},open:true})`);
+assert.equal(reading.run(`learningStatus('${linkedId}')`),'not-started');
+reading.run(`onDisclosureToggle({dataset:{task:'${linkedId}',part:'short'},open:false});onDisclosureToggle({dataset:{task:'${linkedId}',part:'short'},open:true})`);
+assert.equal(reading.run(`learningStatus('${linkedId}')`),'viewed');
 console.log('Catalog and app OK: 500 solved tasks, quality/taxonomy/all filters, full variants, training, 501 pagination, deep links, safe rendering, migration/export/import/reload, SVGs');
