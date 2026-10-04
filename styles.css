@@ -79,7 +79,7 @@ a { color: var(--blue); }
 .hero { padding: 26px; margin-bottom: 20px; }
 .hero h2 { font-family: Georgia, 'Times New Roman', serif; font-size: 36px; margin: 0 0 10px; }
 .hero p { color: var(--muted); max-width: 900px; line-height: 1.6; }
-.detail { overflow: hidden; }
+.detail { overflow: hidden; scroll-margin-top: 95px; }
 .detail-head { padding: 22px 24px; border-bottom: 1px solid var(--line); background: var(--panel-2); }
 .detail-head h2 { font-family: Georgia, 'Times New Roman', serif; font-size: 30px; margin: 12px 0 8px; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -120,6 +120,7 @@ textarea { min-height: 90px; width: 100%; border: 1px solid var(--line); border-
   .nav { justify-content: flex-start; gap: 6px; }
   .nav button { padding: 8px 10px; font-size: 13px; }
   .main { padding: 16px 12px; }
+  .detail { scroll-margin-top: 12px; }
   .detail-head { padding: 18px; }
   .detail-head h2 { font-size: 25px; }
   .learning-tools { padding: 10px 14px 18px; }

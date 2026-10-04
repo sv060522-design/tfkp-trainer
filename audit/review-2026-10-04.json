@@ -1,0 +1,1422 @@
+{
+  "summary": {
+    "date": "2026-10-04",
+    "build": "2026-10-04-v30",
+    "publishedTasks": 500,
+    "sourceNotesExcluded": 72,
+    "idsAdded": [],
+    "idsRemoved": [],
+    "answersChanged": [],
+    "solutionsExpanded": 34,
+    "sourceNotationRestored": [
+      "1997-1998-осень-v2-n3",
+      "1997-1998-осень-v4-n3"
+    ],
+    "statementVerification": {
+      "source-verified": 499,
+      "needs-review": 1
+    },
+    "answerVerification": {
+      "independently-verified": 359,
+      "numeric-verified": 141
+    },
+    "solutionVerification": {
+      "reviewed": 500
+    }
+  },
+  "revisions": [
+    {
+      "id": "1996-1997-осень-v1-n3",
+      "sourceFile": "tfkp1996-1997.pdf",
+      "sourcePage": 1,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "7fbb97228252a7688c5d5fa6117e08df61e9c10ea289d4077a01b489ade833e7",
+        "sourceDocument": "tfkp1996-1997.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 3.272948200101146e-14
+        },
+        "solutionSha256": "4cb65a21aac72c956ccb55c2f4b20f6d041919257e82c7d7908485073bb2fe68",
+        "summary": "Источник: tfkp1996-1997.pdf · стр. 1. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "5b4e1c67982f72d3e97b2c39fbb819d5ebba6be549fec072b768b1ae2146a610",
+        "answerSha256": "f1a671370f17190fc266656a444ff286e1c16df88413c28867191f4f05ae8b17"
+      },
+      "contourStepAudit": null
+    },
+    {
+      "id": "1996-1997-осень-v2-n3",
+      "sourceFile": "tfkp1996-1997.pdf",
+      "sourcePage": 2,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "d7e585f2536ee9e44f903ae0dcbc995ef878fabd2f72223a6e08989085c05284",
+        "sourceDocument": "tfkp1996-1997.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 5.921189464667501e-17
+        },
+        "solutionSha256": "d30da4370e1ab046bbdcfcf3c923d48a9d82745d0d8f1aa2523cd40306e49c35",
+        "summary": "Источник: tfkp1996-1997.pdf · стр. 2. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "61a0cf462f70d316428e6ef7c7c1825df0d69f31ac0748b4a4b51fdc013fdb61",
+        "answerSha256": "eed3f6d260740e6cccd60fd964f1b4118cf4c281602f7dee71465bb15c232182"
+      },
+      "contourStepAudit": null
+    },
+    {
+      "id": "1996-1997-осень-v3-n3",
+      "sourceFile": "tfkp1996-1997.pdf",
+      "sourcePage": 3,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "5475155394409b3d7c6c9bbda5d4d014c87bf1b336d4301e6723afd74c368c8a",
+        "sourceDocument": "tfkp1996-1997.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 4.273112479024887e-16
+        },
+        "solutionSha256": "789315ea6195b0a260a1c12170708614eb510d8ce202e76ec61c72b42ac3c633",
+        "summary": "Источник: tfkp1996-1997.pdf · стр. 3. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "89fcfbb6409aba725a83a462d01637149354c80d198315c4c74078282c74b90f",
+        "answerSha256": "698aff6f5d38bc35cbccee4862cccee4124b8a6139af677b1726de58dca639f3"
+      },
+      "contourStepAudit": {
+        "integrand": "(pi*z + 2)/(pi*z*(2*sin(1/(3*z)) - 1))",
+        "center": "0",
+        "radius": "1/2",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "-1",
+          "1": "-2/3 - 2/pi"
+        },
+        "residues": [
+          {
+            "point": "2/pi",
+            "residue": "-8*sqrt(3)/pi**2",
+            "order": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "1996-1997-осень-v4-n3",
+      "sourceFile": "tfkp1996-1997.pdf",
+      "sourcePage": 4,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "06db02f4baaaf32cea14a228af3528127ac92499680e93884479c15a694a42f1",
+        "sourceDocument": "tfkp1996-1997.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 1.0104821174691452e-16
+        },
+        "solutionSha256": "58709eee727075e515e3163e0958e5f480d9daa165a463d1bfc2f5816dcc2feb",
+        "summary": "Источник: tfkp1996-1997.pdf · стр. 4. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "5d1d7c5aed22d998440c3049af9cd6cc53fe20230aa25332759117e84b6f6965",
+        "answerSha256": "0c85bcb90c589b83597ac7a2aa0c1ca888b8ddbd69eecc7b4dadc1e2a2b2eabd"
+      },
+      "contourStepAudit": {
+        "integrand": "2*(z + 3*I)*cosh(1/(2*z))/((z**4 + 10*z**2) + 9)",
+        "center": "-I",
+        "radius": "3/2",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "1": "0"
+        },
+        "residues": [
+          {
+            "point": "I",
+            "residue": "cos(1/2)/2",
+            "order": 1
+          },
+          {
+            "point": "3*I",
+            "residue": "-cos(1/6)/4",
+            "order": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "1997-1998-осень-v1-n3",
+      "sourceFile": "tfkp1997-1998.pdf",
+      "sourcePage": 1,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "858ab494622b9bff1ac3f66d7ca0709bbbcfa5ca66667bde58127d8e8fcbf0fe",
+        "sourceDocument": "tfkp1997-1998.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 4.604116768924556e-17
+        },
+        "solutionSha256": "825593972d27355b05d0a54b82bec810ce0b6ae0ffdf5ae0ad002fdb41814cf7",
+        "summary": "Источник: tfkp1997-1998.pdf · стр. 1. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "f0499115cb886d23efb9190528ebfb2a4543998a3c3d1bcbf83040a0b1f4b4c1",
+        "answerSha256": "4d84bf7ff2a08926b2ae59f51e9cd9258539fb6fccc43699a3c24ba00e165e87"
+      },
+      "contourStepAudit": {
+        "integrand": "-z/(exp(1/z) - 4)",
+        "center": "0",
+        "radius": "1/2",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "1/9",
+          "1": "5/54",
+          "-1": "1/3"
+        },
+        "residues": [
+          {
+            "point": "1/log(4)",
+            "residue": "1/(32*log(2)**3)",
+            "order": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "1997-1998-осень-v2-n3",
+      "sourceFile": "tfkp1997-1998.pdf",
+      "sourcePage": 2,
+      "statementRestored": true,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "3e0b55c88fc5a4467e77b8553ed1ef9c64fa26fc09695d3c3b8c2395e0e84964",
+        "sourceDocument": "tfkp1997-1998.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 3.712789252941316e-16
+        },
+        "solutionSha256": "ac2f264214e001761ba11a1121ad725e4edff3fbafa185a3f889c896d5ea47e4",
+        "summary": "Источник: tfkp1997-1998.pdf · стр. 2. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "4ee523a6683618d261d9a10d8b54513ce3542c1ceeb34cda49aaa3bc82905cdc",
+        "answerSha256": "32c7504cd605d2403288d82b6cf419887810931d84c2ca51b9be3b5437b9b19a"
+      },
+      "contourStepAudit": {
+        "integrand": "(2*z - pi - I*log(3))/(cot(z) + I/2)",
+        "center": "0",
+        "radius": "4",
+        "strategy": "inside",
+        "residues": [
+          {
+            "point": "-pi/2 + I*log(3)/2",
+            "residue": "8*pi/3",
+            "order": 1
+          }
+        ],
+        "simpleCoefficient": {
+          "point": "-pi/2 + I*log(3)/2",
+          "numerator": "2*z - pi - I*log(3)",
+          "denominator": "cot(z) + I/2",
+          "numeratorValue": "-2*pi",
+          "denominatorDerivative": "-3/4",
+          "residue": "8*pi/3"
+        }
+      }
+    },
+    {
+      "id": "1997-1998-осень-v3-n3",
+      "sourceFile": "tfkp1997-1998.pdf",
+      "sourcePage": 3,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "78e7d9e90fc80b5b20dbb886c101f5982c3254e4e048de93773d27a5654e7b85",
+        "sourceDocument": "tfkp1997-1998.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 4.669198127610374e-16
+        },
+        "solutionSha256": "dc146a3106c1365a2ea423f5d1fa495b2b553dcbb521c64c6357876eac0d28b7",
+        "summary": "Источник: tfkp1997-1998.pdf · стр. 3. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "7028ff039d31aa9125e2d5d884a095845afa1929fc781ee14bef66025ebf1185",
+        "answerSha256": "fba6791e9d1afba5569d2484f7bab5052619afb811ef7134f6dbe16df6f6a96e"
+      },
+      "contourStepAudit": {
+        "integrand": "(z*log(2) - 1)/((exp(1/z) - 2)*log(2))",
+        "center": "0",
+        "radius": "1",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "-1 + 1/log(2)",
+          "1": "-3/2 + 1/log(2)",
+          "-1": "-1"
+        },
+        "residues": []
+      }
+    },
+    {
+      "id": "1997-1998-осень-v4-n3",
+      "sourceFile": "tfkp1997-1998.pdf",
+      "sourcePage": 4,
+      "statementRestored": true,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "59c682e494245215adf93fef3789204169ca73e6fd49acdb5df22b18bcc808a3",
+        "sourceDocument": "tfkp1997-1998.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 9.21635201289683e-17
+        },
+        "solutionSha256": "10feb9233036245afff2aa9b6f7200be46c463ded42c8f0507ebd84d86d91f90",
+        "summary": "Источник: tfkp1997-1998.pdf · стр. 4. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "91610c7aedda3c30b426c2ed94266aed4c49faa2eba9edbdee3943f29ca18a51",
+        "answerSha256": "7fe03ca98e39286c9f5e2dc6a28ae32cbb317b186a92de6e338c624607c0196a"
+      },
+      "contourStepAudit": {
+        "integrand": "(2*z - I*log(2))/(tan(z) - I/3)",
+        "center": "pi/2",
+        "radius": "3",
+        "strategy": "inside",
+        "residues": [
+          {
+            "point": "pi + I*log(2)/2",
+            "residue": "9*pi/4",
+            "order": 1
+          }
+        ],
+        "simpleCoefficient": {
+          "point": "pi + I*log(2)/2",
+          "numerator": "2*z - I*log(2)",
+          "denominator": "tan(z) - I/3",
+          "numeratorValue": "2*pi",
+          "denominatorDerivative": "8/9",
+          "residue": "9*pi/4"
+        }
+      }
+    },
+    {
+      "id": "1998-1999-осень-v1-n3",
+      "sourceFile": "tfkp1998-1999.pdf",
+      "sourcePage": 1,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "b11af0e18f1782436655589f9595870006eadb76dd7fe2bed224261c5ec96d40",
+        "sourceDocument": "tfkp1998-1999.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 1.3592257012030496e-12
+        },
+        "solutionSha256": "5e5de7d2638666f686b186aab7c0e86203ec4f17bca09e2da4705824ecdfa08d",
+        "summary": "Источник: tfkp1998-1999.pdf · стр. 1. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "cf88997c8b74d9e2596c8cb2387897357ffffcd9351b29141a8c415386d200eb",
+        "answerSha256": "2eeef4e93f9cc43e9dede6b4a86059297be777b48883c39b5dc869f24e6266a2"
+      },
+      "contourStepAudit": {
+        "integrand": "-I*(2*z + pi)/(tan(2*z) + cot(3*z))",
+        "center": "0",
+        "radius": "2",
+        "strategy": "inside",
+        "transformed": "-I*(2*z + pi)*sin(3*z)*cos(2*z)/cos(z)",
+        "residues": [
+          {
+            "point": "pi/2",
+            "residue": "2*I*pi",
+            "order": 1
+          },
+          {
+            "point": "-pi/2",
+            "residue": "0",
+            "order": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "1998-1999-осень-v2-n3",
+      "sourceFile": "tfkp1998-1999.pdf",
+      "sourcePage": 2,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "ead545f471bf6c046a66cd82cc3c0f529a2a87e3baa9ccd7890c6d0e8405a334",
+        "sourceDocument": "tfkp1998-1999.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 2.120344479712818e-12
+        },
+        "solutionSha256": "736467ae098096cc302116222dddc4c56580c9dd5207d42070f802b08b323828",
+        "summary": "Источник: tfkp1998-1999.pdf · стр. 2. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "0d3c23b62d1d93e04bd1a1b5cfba1235e3a1c75a4b69bb723b19b8381cc90543",
+        "answerSha256": "2eeef4e93f9cc43e9dede6b4a86059297be777b48883c39b5dc869f24e6266a2"
+      },
+      "contourStepAudit": {
+        "integrand": "-(2*z + I*pi)/(tanh(2*z) - 1/tanh(3*z))",
+        "center": "0",
+        "radius": "2",
+        "strategy": "inside",
+        "transformed": "(2*z + I*pi)*sinh(3*z)*cosh(2*z)/cosh(z)",
+        "residues": [
+          {
+            "point": "I*pi/2",
+            "residue": "2*I*pi",
+            "order": 1
+          },
+          {
+            "point": "-I*pi/2",
+            "residue": "0",
+            "order": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "1998-1999-осень-v3-n3",
+      "sourceFile": "tfkp1998-1999.pdf",
+      "sourcePage": 3,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "736cecb2dbe1de221ed11a910f5834d13c95eee47bb388c35a7c6faf18715010",
+        "sourceDocument": "tfkp1998-1999.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 1.3686979283606016e-12
+        },
+        "solutionSha256": "7fa47cd858f977786f9b0fbd790c6488523f27a25b2e9635c61500863fff1d62",
+        "summary": "Источник: tfkp1998-1999.pdf · стр. 3. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "22f6bdf78d71b35f493cb5ea16da2035dad7e2f3510b0fcb71382176ebd317e6",
+        "answerSha256": "be4b8152745aaa0c1d3982ebae73a3da52fdd76ab7cf3260f055ed703b46688b"
+      },
+      "contourStepAudit": {
+        "integrand": "(2*z - pi)/(tan(2*z) + cot(3*z))",
+        "center": "0",
+        "radius": "2",
+        "strategy": "inside",
+        "transformed": "(2*z - pi)*sin(3*z)*cos(2*z)/cos(z)",
+        "residues": [
+          {
+            "point": "-pi/2",
+            "residue": "2*pi",
+            "order": 1
+          },
+          {
+            "point": "pi/2",
+            "residue": "0",
+            "order": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "1998-1999-осень-v4-n3",
+      "sourceFile": "tfkp1998-1999.pdf",
+      "sourcePage": 4,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "4072b3ffe481482e0c0a5b7790586193e1214e5b57662e363f2d246a5218fea0",
+        "sourceDocument": "tfkp1998-1999.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 8.563753956849033e-13
+        },
+        "solutionSha256": "5d97e014897ce06bf3b4a9d00ebc77d8453d708ce23ab63e82be8dc5decc0a79",
+        "summary": "Источник: tfkp1998-1999.pdf · стр. 4. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "7f03b3835b648742a68f50b4cf8907844b71f2dceebb50ecd36c23e89b9ea041",
+        "answerSha256": "be4b8152745aaa0c1d3982ebae73a3da52fdd76ab7cf3260f055ed703b46688b"
+      },
+      "contourStepAudit": {
+        "integrand": "-(2*I*z + pi)/(tanh(2*z) - 1/tanh(3*z))",
+        "center": "0",
+        "radius": "2",
+        "strategy": "inside",
+        "transformed": "I*(2*z - I*pi)*sinh(3*z)*cosh(2*z)/cosh(z)",
+        "residues": [
+          {
+            "point": "-I*pi/2",
+            "residue": "2*pi",
+            "order": 1
+          },
+          {
+            "point": "I*pi/2",
+            "residue": "0",
+            "order": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "1999-2000-осень-v4-n3",
+      "sourceFile": "tfkp1999-2000.pdf",
+      "sourcePage": 4,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "71a45077c0df68afae5f68f408f6300c15351c8a3598c0233d7f5fc9a17f3b36",
+        "sourceDocument": "tfkp1999-2000.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 2.3188486666714816e-16
+        },
+        "solutionSha256": "31b942f9d0b4ea396ce215129adfebcb8ca750f4489ceab4d4e121be19339f52",
+        "summary": "Источник: tfkp1999-2000.pdf · стр. 4. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "4b8b9d3a4498360e097b69c2a91d28e4f5042ceb784c12625d033501412c3425",
+        "answerSha256": "67111724166b71bc706f2c10321c8379b272d2270c18cb2b272c64392a99cceb"
+      },
+      "contourStepAudit": {
+        "integrand": "1/(exp(2/z) - exp(1/z))",
+        "center": "0",
+        "radius": "1",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "-3/2",
+          "1": "13/12",
+          "-1": "1"
+        },
+        "residues": []
+      }
+    },
+    {
+      "id": "2001-2002-весна-v1-n3",
+      "sourceFile": "tfkp2001-2002(весна).pdf",
+      "sourcePage": 1,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "913b6f1c0338610796a2c3b66464674f5c7297d288f58b3ae68ef16a27871a5f",
+        "sourceDocument": "tfkp2001-2002(весна).pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 4.409069275772675e-15
+        },
+        "solutionSha256": "109b87c7307137c28b42b90ac6f05e3acedc8c0889097d5f4bb90c3e5a6fccae",
+        "summary": "Источник: tfkp2001-2002(весна).pdf · стр. 1. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "e592fbe096425877b46848176ae84a910ba4b79ec971a3995ec2e8e97f6de798",
+        "answerSha256": "32bd9f8cec6c1abb0678391991c0c6543ff2329e186076624b1843af210782df"
+      },
+      "contourStepAudit": {
+        "integrand": "(z**3 + z)/(exp(2/(z**2)) - 2)",
+        "center": "2",
+        "radius": "4",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "1": "-8",
+          "-3": "-1",
+          "-1": "-3"
+        },
+        "residues": []
+      }
+    },
+    {
+      "id": "2001-2002-весна-v3-n3",
+      "sourceFile": "tfkp2001-2002(весна).pdf",
+      "sourcePage": 3,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "2bb7f4e2c8a2732f8b473181f90db814a6def02963ed82c7bd8a69f2bcc3a68c",
+        "sourceDocument": "tfkp2001-2002(весна).pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 4.6786793247298284e-15
+        },
+        "solutionSha256": "eba81e2b0fb2b776372f9875fd0863c7e715404db761db4460f4335d735ccea4",
+        "summary": "Источник: tfkp2001-2002(весна).pdf · стр. 3. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "ff8a01270372821b5daf7ee52500e2b8acaa6a1798d4611bd30bfc820f22ee38",
+        "answerSha256": "42c654cb15d6df885909b3ad878da6c367d8dc585a6d7ff3db6e1d99fcdb928c"
+      },
+      "contourStepAudit": {
+        "integrand": "(z**2*(z - 2))/((sinh(2/z) + 2)**2)",
+        "center": "-1",
+        "radius": "5",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "-17/6",
+          "1": "59/12",
+          "-2": "-1",
+          "-3": "1/4",
+          "-1": "7/4"
+        },
+        "residues": []
+      }
+    },
+    {
+      "id": "2001-2002-весна-v5-n3",
+      "sourceFile": "tfkp2001-2002(весна).pdf",
+      "sourcePage": 5,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "8261747c3766f806b7bd349e8a3fea958c9916254d5d49e51b001feba2528378",
+        "sourceDocument": "tfkp2001-2002(весна).pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 1.758259823097655e-13
+        },
+        "solutionSha256": "701c66f715fc868970d6e59b0f317c80000dc34aac93e4fe2cd3bb82969bd63b",
+        "summary": "Источник: tfkp2001-2002(весна).pdf · стр. 5. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "529d1d2ca36ed40f94d4c2f6c95d8ace03bde2dbf632c7ea7dda54f777b0599e",
+        "answerSha256": "5e7f682e1968af13365e06f4523bd39605953c8a207b19c5d874ae492e061484"
+      },
+      "contourStepAudit": {
+        "integrand": "(2*(z**3*(2 - z**4)))/(2*cos(1/(z**2)) - 1)",
+        "center": "I",
+        "radius": "2",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "1": "13/6",
+          "-7": "-2",
+          "-3": "2"
+        },
+        "residues": []
+      }
+    },
+    {
+      "id": "2002-2003-весна-v1-n3",
+      "sourceFile": "tfkp2002-2003(весна).pdf",
+      "sourcePage": 1,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "f7a9ccc64336b5971ffa8f811e49852e7500823883b448146f00f91a655c09ba",
+        "sourceDocument": "tfkp2002-2003(весна).pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 1.2154411341288004e-15
+        },
+        "solutionSha256": "037a404179ffd1b835f7337d94c640c59430b7ff8741ac6bca7b79cde7ace785",
+        "summary": "Источник: tfkp2002-2003(весна).pdf · стр. 1. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "7a80d12c1b175f161b8ad5e780b41409a57ff8c8be00576387008649ed94da3d",
+        "answerSha256": "b741bb8870abb51e6f832df185d6d2da2a28a9ae9feed94f7e1ec74560b72f6d"
+      },
+      "contourStepAudit": {
+        "integrand": "-cos(1/z)/(cos(z) - 1)",
+        "center": "pi",
+        "radius": "4",
+        "strategy": "inside",
+        "transformed": "cos(1/z)/(1 - cos(z))",
+        "residues": [
+          {
+            "point": "2*pi",
+            "residue": "sin(1/(2*pi))/(2*pi**2)",
+            "order": 2
+          },
+          {
+            "point": "0",
+            "residue": "0",
+            "order": "essential-even"
+          }
+        ],
+        "localCoefficient": {
+          "point": "2*pi",
+          "numerator": "cos(1/z)",
+          "denominator": "1 - cos(z)",
+          "leading": "1/2",
+          "numeratorDerivative": "sin(1/(2*pi))/(4*pi**2)",
+          "residue": "sin(1/(2*pi))/(2*pi**2)"
+        }
+      }
+    },
+    {
+      "id": "2002-2003-весна-v2-n3",
+      "sourceFile": "tfkp2002-2003(весна).pdf",
+      "sourcePage": 2,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "17ff57c50faf803164de56382c70d4532acb6ce6ecf51c445ec5e62abf18de11",
+        "sourceDocument": "tfkp2002-2003(весна).pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 3.629249608377648e-16
+        },
+        "solutionSha256": "50bce8cd85580c2aec55a8f6c658b371857f96fc24595180cc94507419c7e1b6",
+        "summary": "Источник: tfkp2002-2003(весна).pdf · стр. 2. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "47cc1e8b34eeb5dba222c361b04c3efd0ff80ff94a0c8870b7c451f69f0d9fc5",
+        "answerSha256": "b91e37249f228c16984786473e45f1c7311af8f5df5197be908acb4a959f6292"
+      },
+      "contourStepAudit": {
+        "integrand": "sin(1/(z**2))/(cos(z) + 1)",
+        "center": "pi/2",
+        "radius": "2",
+        "strategy": "inside",
+        "transformed": "sin(z**(-2))/(cos(z) + 1)",
+        "residues": [
+          {
+            "point": "pi",
+            "residue": "-4*cos(pi**(-2))/pi**3",
+            "order": 2
+          },
+          {
+            "point": "0",
+            "residue": "0",
+            "order": "essential-even"
+          }
+        ],
+        "localCoefficient": {
+          "point": "pi",
+          "numerator": "sin(z**(-2))",
+          "denominator": "cos(z) + 1",
+          "leading": "1/2",
+          "numeratorDerivative": "-2*cos(pi**(-2))/pi**3",
+          "residue": "-4*cos(pi**(-2))/pi**3"
+        }
+      }
+    },
+    {
+      "id": "2002-2003-весна-v3-n3",
+      "sourceFile": "tfkp2002-2003(весна).pdf",
+      "sourcePage": 3,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "a1c143d153d4a796d035ae30f02e0b068a95ed76e51372ab0403705f4fb181e6",
+        "sourceDocument": "tfkp2002-2003(весна).pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 3.920175049366566e-16
+        },
+        "solutionSha256": "0c8cd2f1aa86a038692471d5e50f149b0bd01579ef3b9cef1631f2759b3dd61a",
+        "summary": "Источник: tfkp2002-2003(весна).pdf · стр. 3. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "f08f53ec13493afbba7bc7138668e577ba69767c368ba91143e1e0f8958eafd1",
+        "answerSha256": "5a10761b6af7c58800047656a9500afb03dbef613c635ca64d855489cede5bf4"
+      },
+      "contourStepAudit": {
+        "integrand": "-cosh(1/z)/(cosh(z) - 1)",
+        "center": "I*pi",
+        "radius": "5",
+        "strategy": "inside",
+        "transformed": "cosh(1/z)/(1 - cosh(z))",
+        "residues": [
+          {
+            "point": "2*I*pi",
+            "residue": "I*sin(1/(2*pi))/(2*pi**2)",
+            "order": 2
+          },
+          {
+            "point": "0",
+            "residue": "0",
+            "order": "essential-even"
+          }
+        ],
+        "localCoefficient": {
+          "point": "2*I*pi",
+          "numerator": "cosh(1/z)",
+          "denominator": "1 - cosh(z)",
+          "leading": "-1/2",
+          "numeratorDerivative": "-I*sin(1/(2*pi))/(4*pi**2)",
+          "residue": "I*sin(1/(2*pi))/(2*pi**2)"
+        }
+      }
+    },
+    {
+      "id": "2002-2003-весна-v4-n3",
+      "sourceFile": "tfkp2002-2003(весна).pdf",
+      "sourcePage": 4,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "b1f8fd28a011802cdf93d68ab8403cd54f0e84377588042271a58d48057e9ec4",
+        "sourceDocument": "tfkp2002-2003(весна).pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 7.81498647821065e-17
+        },
+        "solutionSha256": "4cffe673863a12c2315b8a9601e5c9ca153278e90a4497f6328bd0a4e085c0b0",
+        "summary": "Источник: tfkp2002-2003(весна).pdf · стр. 4. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "77154f2e8d31c9c0081e25c7e05d9e374f4bbb07ad45d23ffb6a41c00f04cda7",
+        "answerSha256": "2e1f776204de128c0d5ed2e64939645d665140e6418d777f0afe4388241d1c3b"
+      },
+      "contourStepAudit": {
+        "integrand": "sin(1/(z**2))/(cosh(z) + 1)",
+        "center": "-I*pi/2",
+        "radius": "2",
+        "strategy": "inside",
+        "transformed": "sin(z**(-2))/(cosh(z) + 1)",
+        "residues": [
+          {
+            "point": "-I*pi",
+            "residue": "-4*I*cos(pi**(-2))/pi**3",
+            "order": 2
+          },
+          {
+            "point": "0",
+            "residue": "0",
+            "order": "essential-even"
+          }
+        ],
+        "localCoefficient": {
+          "point": "-I*pi",
+          "numerator": "sin(z**(-2))",
+          "denominator": "cosh(z) + 1",
+          "leading": "-1/2",
+          "numeratorDerivative": "2*I*cos(pi**(-2))/pi**3",
+          "residue": "-4*I*cos(pi**(-2))/pi**3"
+        }
+      }
+    },
+    {
+      "id": "2005-2006-осень-v51-n3",
+      "sourceFile": "tfkp2005-2006.pdf",
+      "sourcePage": 1,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "1b2ee6336539959f81f4661ae7b8fe03f89cc6a24ce82ef468f85a9e8819a12f",
+        "sourceDocument": "tfkp2005-2006.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 9.812231992234035e-17
+        },
+        "solutionSha256": "f254f42939072f899e6bd28b1b343f217aa94c8019125241ddb4f8e14e0d675f",
+        "summary": "Источник: tfkp2005-2006.pdf · стр. 1. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "0a43cf809afbb45fc65f6a0465fa7a767854cb9436f227e7580bd159ca664afb",
+        "answerSha256": "48dd286223c02155516271f95c487cf8246f937ea6147fa4d06794113061eb1c"
+      },
+      "contourStepAudit": {
+        "integrand": "exp(I*z)/cosh(z)**2",
+        "center": "I",
+        "radius": "1",
+        "strategy": "inside",
+        "transformed": "exp(I*z)/cosh(z)**2",
+        "residues": [
+          {
+            "point": "I*pi/2",
+            "residue": "-I*exp(-pi/2)",
+            "order": 2
+          }
+        ],
+        "localCoefficient": {
+          "point": "I*pi/2",
+          "numerator": "exp(I*z)",
+          "denominator": "cosh(z)**2",
+          "leading": "-1",
+          "numeratorDerivative": "I*exp(-pi/2)",
+          "residue": "-I*exp(-pi/2)"
+        }
+      }
+    },
+    {
+      "id": "2005-2006-осень-v52-n3",
+      "sourceFile": "tfkp2005-2006.pdf",
+      "sourcePage": 2,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "61bfd1ce6f646c4cb3ba06b230f42b61619eb8259a66da28412aa5481e075b50",
+        "sourceDocument": "tfkp2005-2006.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 2.48555406705036e-16
+        },
+        "solutionSha256": "6576bb6ac26b3e73c4e5622593b7e6ee85bd04a0e047ba084d76ebd90f18e86d",
+        "summary": "Источник: tfkp2005-2006.pdf · стр. 2. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "24afa0ae619c7d3fd2b41243070b22b6756c3016ea8960345965287817f4da89",
+        "answerSha256": "9f6a48fb6b93434fa0d783dc1cdb2d10257396943f201682473658c59e8e21dd"
+      },
+      "contourStepAudit": {
+        "integrand": "exp(-I*z)/cos(z)**2",
+        "center": "1",
+        "radius": "1",
+        "strategy": "inside",
+        "transformed": "exp(-I*z)/cos(z)**2",
+        "residues": [
+          {
+            "point": "pi/2",
+            "residue": "-1",
+            "order": 2
+          }
+        ],
+        "localCoefficient": {
+          "point": "pi/2",
+          "numerator": "exp(-I*z)",
+          "denominator": "cos(z)**2",
+          "leading": "1",
+          "numeratorDerivative": "-1",
+          "residue": "-1"
+        }
+      }
+    },
+    {
+      "id": "2005-2006-осень-v53-n3",
+      "sourceFile": "tfkp2005-2006.pdf",
+      "sourcePage": 3,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "9a9836fcbd8cbefbe21b1840d6d49132c659b905b009ba53114475de4bc9a49e",
+        "sourceDocument": "tfkp2005-2006.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 0
+        },
+        "solutionSha256": "816a998901dba08ec38fd5f6bfc1ad9de5649a9f1b0eea40886f2852463c551f",
+        "summary": "Источник: tfkp2005-2006.pdf · стр. 3. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "2ea3a01633c7b93bbb18e9e89b76f3d5206ecf189fad36b174291679438a2c60",
+        "answerSha256": "c9f90184d46e8332639b4ec67eb91f28cd3db326498adf1dd380d4343407017d"
+      },
+      "contourStepAudit": {
+        "integrand": "(z + I)**2/sinh(z)**2",
+        "center": "3*I",
+        "radius": "1",
+        "strategy": "inside",
+        "transformed": "(z + I)**2/sinh(z)**2",
+        "residues": [
+          {
+            "point": "I*pi",
+            "residue": "2*I*(1 + pi)",
+            "order": 2
+          }
+        ],
+        "localCoefficient": {
+          "point": "I*pi",
+          "numerator": "(z + I)**2",
+          "denominator": "sinh(z)**2",
+          "leading": "1",
+          "numeratorDerivative": "2*I*(1 + pi)",
+          "residue": "2*I*(1 + pi)"
+        }
+      }
+    },
+    {
+      "id": "2005-2006-осень-v54-n3",
+      "sourceFile": "tfkp2005-2006.pdf",
+      "sourcePage": 4,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "f33fcee3b5e9e6cbcf7387efbbcb409ce9d957256c3ff704e40a2a53b8314c50",
+        "sourceDocument": "tfkp2005-2006.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 4.088062486614793e-16
+        },
+        "solutionSha256": "821d7ec21220b62422d47eeb1f1930aa43060345209a32d4f3f37e2d76cd3ae5",
+        "summary": "Источник: tfkp2005-2006.pdf · стр. 4. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "675de8667ad4720684d4cb330b97f950ee816b57e941a4a2a81d831253a2dcc2",
+        "answerSha256": "8d1ab4773106374d6708005d92f5bda7ee6bd80db1081c6d56675b590326c9f3"
+      },
+      "contourStepAudit": {
+        "integrand": "-(sinh(z) + I)/(cos(z) - 1)",
+        "center": "-5",
+        "radius": "2",
+        "strategy": "inside",
+        "transformed": "(sinh(z) + I)/(1 - cos(z))",
+        "residues": [
+          {
+            "point": "-2*pi",
+            "residue": "2*cosh(2*pi)",
+            "order": 2
+          }
+        ],
+        "localCoefficient": {
+          "point": "-2*pi",
+          "numerator": "sinh(z) + I",
+          "denominator": "1 - cos(z)",
+          "leading": "1/2",
+          "numeratorDerivative": "cosh(2*pi)",
+          "residue": "2*cosh(2*pi)"
+        }
+      }
+    },
+    {
+      "id": "2006-2007-весна-fivt-v71-n3",
+      "sourceFile": "tfkp2006-07(ФИВТ).pdf",
+      "sourcePage": 1,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "46ca3306085913dd45a410defd6cf110a539919effae3cba0c46db34f09a631f",
+        "sourceDocument": "tfkp2006-07(ФИВТ).pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 6.11776559883054e-15
+        },
+        "solutionSha256": "d1d92a657e8341cdd1f1cfc083a5f8885b8352f7b18839fde669acbae0339f0a",
+        "summary": "Источник: tfkp2006-07(ФИВТ).pdf · стр. 1. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "c75519246758fcfac98c33be7647605c00484e33cce4f46def15da2e98a3f85a",
+        "answerSha256": "00fb5911da96c3872dd69fb333034721ed7f9cf0c822d1910c5e1ced06bfa708"
+      },
+      "contourStepAudit": {
+        "integrand": "((z - 1)**3/(z + 3))*sin(1/(1 - z))",
+        "center": "0",
+        "radius": "2",
+        "infinityCoefficients": {
+          "0": "5",
+          "1": "-95/6",
+          "-1": "-1"
+        },
+        "residues": []
+      }
+    },
+    {
+      "id": "2008-2009-осень-v81-n3",
+      "sourceFile": "tfkp2008-09.pdf",
+      "sourcePage": 1,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "bf8a9865777a854252c5abeb205de9b1cefafb375e4dbeb07a98f806bd5d1198",
+        "sourceDocument": "tfkp2008-09.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 5.186982715105464e-15
+        },
+        "solutionSha256": "58f82812634446f752b77eb83d499114fa40ac73ce537c9ac2abb2d7e1506184",
+        "summary": "Источник: tfkp2008-09.pdf · стр. 1. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "98a5f97d2d436d9cb2b18c2a51c62b2f9205262afc586317116a8f1b947415d2",
+        "answerSha256": "4c62a3332818988e6f01cc66d5abcc3e2d497ea6124ebe9b7b49f2063f1b8ce6"
+      },
+      "contourStepAudit": {
+        "integrand": "((z - 2)**3/(z - 4))*sin(1/(2 - z))",
+        "center": "0",
+        "radius": "3",
+        "infinityCoefficients": {
+          "1": "-23/6",
+          "-1": "-1"
+        },
+        "residues": []
+      }
+    },
+    {
+      "id": "2009-2010-осень-v91-n3",
+      "sourceFile": "tfkp2009-10.pdf",
+      "sourcePage": 1,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "b700534e88343219fefaaa5eeeffe4a4fe2c2950703e5322a405c15ade13f7e7",
+        "sourceDocument": "tfkp2009-10.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 3.94494553230063e-16
+        },
+        "solutionSha256": "41dba88263ac93f9c977732a6ed1c7441225e8fcb496f54d2b08a01c87c898d1",
+        "summary": "Источник: tfkp2009-10.pdf · стр. 1. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "7b145bcbc66231ba10363780407e91cb8538f94895dfd131a2e296f922547086",
+        "answerSha256": "f2c73882a59b5b1d6bb04d7c81876cc4a7503a8496741ccd504188f4ec191b26"
+      },
+      "contourStepAudit": {
+        "integrand": "(z + 2*I)*cos(2/z)/(z + I)",
+        "center": "0",
+        "radius": "1/2",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "1",
+          "1": "I"
+        },
+        "residues": [
+          {
+            "point": "-I",
+            "residue": "I*cosh(2)",
+            "order": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "2009-2010-осень-v92-n3",
+      "sourceFile": "tfkp2009-10.pdf",
+      "sourcePage": 2,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "f1990a8577b064907418198b3c0bfdf22e862ea953c17196bd0aeb504ba8a58b",
+        "sourceDocument": "tfkp2009-10.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 2.1776154821305806e-16
+        },
+        "solutionSha256": "82f52dcefee7308c80c40a9b8c2a3cae1f92195311393edd02d30167d3dbdc7d",
+        "summary": "Источник: tfkp2009-10.pdf · стр. 2. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "9f9f2aadb597afb6afd31d015dfcc413f8ec6bdbba7c79550023cecad77fa9d3",
+        "answerSha256": "65d5162c5e3d3ce09afdeb7b1cb19d83dac0785269f3b6d4ba7aff37dacef6ac"
+      },
+      "contourStepAudit": {
+        "integrand": "z*cosh(2/z)/(z + I)",
+        "center": "0",
+        "radius": "1/2",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "1",
+          "1": "-I"
+        },
+        "residues": [
+          {
+            "point": "-I",
+            "residue": "-I*cos(2)",
+            "order": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "2009-2010-осень-v93-n3",
+      "sourceFile": "tfkp2009-10.pdf",
+      "sourcePage": 3,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "a0a8929b9b71dba3d5f18767c6dca94cc4ecd52d9ba69225858180e4f53448cd",
+        "sourceDocument": "tfkp2009-10.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 8.59496944046147e-17
+        },
+        "solutionSha256": "95ef5e891f05f91f91c8928e5e9ed303c290214a1c851ca10ccab6088e2ad038",
+        "summary": "Источник: tfkp2009-10.pdf · стр. 3. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "1a48bf1b3471acec684b080f5d8606eb8d3f345fde68422351e417ce2f73f23f",
+        "answerSha256": "62bf08d1437cea7fe0d1cdfb805e042f33b96e0187652fa3d6fde58cc626d827"
+      },
+      "contourStepAudit": {
+        "integrand": "I*z**2*sinh(1/z)/(z - I)",
+        "center": "0",
+        "radius": "1/2",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "I",
+          "1": "-1"
+        },
+        "residues": [
+          {
+            "point": "I",
+            "residue": "-sin(1)",
+            "order": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "2009-2010-осень-v94-n3",
+      "sourceFile": "tfkp2009-10.pdf",
+      "sourcePage": 4,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "f8580f1726f6275181441eb0fd9b92e8692af33472ae7ef3715efe1614a7d6fc",
+        "sourceDocument": "tfkp2009-10.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 1.7941201092815653e-16
+        },
+        "solutionSha256": "730345d1c3560a5cca355d6d6c23c40f3a10d9f9c1f15d7ffbac0500f5028b6a",
+        "summary": "Источник: tfkp2009-10.pdf · стр. 4. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "e513c74fb7713b88d7330994fe2b9c9d7acabb6bc873aa8647dd9a9867ad35eb",
+        "answerSha256": "ae165a825f195ecdc7ed23dcedb36fe9a406ccb7388ccad390d1f39c1c7bae40"
+      },
+      "contourStepAudit": {
+        "integrand": "z*exp(2*I/z)/(z - 2*I)",
+        "center": "0",
+        "radius": "1",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "1",
+          "1": "4*I"
+        },
+        "residues": [
+          {
+            "point": "2*I",
+            "residue": "2*E*I",
+            "order": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "2001-2002-осень-v1-n4",
+      "sourceFile": "tfkp2001-2002.pdf",
+      "sourcePage": 1,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "8a9af33a5f1f610141ab551b6ef2f23e5ce5073ecb4ad2580869ee8510af21c7",
+        "sourceDocument": "tfkp2001-2002.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 4.711529012538011e-15
+        },
+        "solutionSha256": "fe2407dd74ba7fa6795381dac0bee0662f965864ae01679b2bfecc68577e204b",
+        "summary": "Источник: tfkp2001-2002.pdf · стр. 1. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "3d9e5d134a7bac964cfbd5375f696432819d81316e5f0f368291c4cf13399813",
+        "answerSha256": "62dc43108a39d104447e19bece1d44cf12dd04f0196d9886207d06e98e2428fa"
+      },
+      "contourStepAudit": {
+        "integrand": "(z - 1)/((z*(cos(1/z) - 1)))",
+        "center": "-I",
+        "radius": "2",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "-1/6",
+          "1": "1/6",
+          "-2": "-2",
+          "-1": "2"
+        },
+        "residues": []
+      }
+    },
+    {
+      "id": "2001-2002-осень-v3-n4",
+      "sourceFile": "tfkp2001-2002.pdf",
+      "sourcePage": 3,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "4b126537485d95d71332de4eb8762b1b85db10b673c867998769f4813046771c",
+        "sourceDocument": "tfkp2001-2002.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 2.2006294664054485e-16
+        },
+        "solutionSha256": "b880603963bc8932f35b4bdf32da05f662e05c8e066fae79de66d2d5408b9d71",
+        "summary": "Источник: tfkp2001-2002.pdf · стр. 3. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "1b551e180bc901694a6f52df33d4dc6b324bd09387e684ccfca7d6b0db8f6cf2",
+        "answerSha256": "40d6e92ae53f05dfa35a471d6731c07ef29807e9e474d642a330a6d760b0ed88"
+      },
+      "contourStepAudit": {
+        "integrand": "(z + 1 - I)/(exp(1/(z - I)) - I)",
+        "center": "I",
+        "radius": "2",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "1 - I/2",
+          "1": "-1/4 - I/2",
+          "-1": "1/2 + I/2"
+        },
+        "residues": []
+      }
+    },
+    {
+      "id": "2001-2002-осень-v4-n4",
+      "sourceFile": "tfkp2001-2002.pdf",
+      "sourcePage": 4,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "91b327db01f407b91284e6293a9ba960e885e2466795c9ae53dac02b1743b906",
+        "sourceDocument": "tfkp2001-2002.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 2.1965315864188282e-16
+        },
+        "solutionSha256": "1222d064f86bc1c6988ae15d553dbd9affd7c46c32022d7a194e8559a57fa32f",
+        "summary": "Источник: tfkp2001-2002.pdf · стр. 4. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "764012dc01531ad482a637f656470acca5db44566ffd5809879c4b6e0dc9adce",
+        "answerSha256": "3d8917192144b6f6938ba7f4b0bde4978b5571ecc2a5b58989db1463c6917848"
+      },
+      "contourStepAudit": {
+        "integrand": "(z + 1)/(z*(exp(1/z) + 1))",
+        "center": "I",
+        "radius": "2",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "1/2",
+          "1": "1/4"
+        },
+        "residues": []
+      }
+    },
+    {
+      "id": "kolesnikova-2016-example-1-22",
+      "sourceFile": "колесникова.pdf",
+      "sourcePage": 46,
+      "statementRestored": false,
+      "verificationEvidence": {
+        "date": "2026-10-04",
+        "sourcePageSha256": "ed92f037d66d578e86f61ed8c9b31876695b5991f3ee78cd3d1ee9092e223c8a",
+        "sourceDocument": "колесникова.pdf",
+        "answerReview": {
+          "status": "numeric-verified",
+          "checks": [
+            "Прямая комплексная квадратура по окружности (16384 точки)",
+            "Сравнение с независимо прочитанным ответом",
+            "Сверка промежуточных коэффициентов с отображаемой функцией"
+          ],
+          "relativeError": 7.911798484037177e-17
+        },
+        "solutionSha256": "6ea638e4787cf66c0b1d9a786627162d53446ef63016448c81f0e086c6a5907f",
+        "summary": "Источник: С. И. Колесникова, «ТФКП в задачах», 2016 · пример 1.22 · стр. 46–47. Формула и условия сверены с первичным материалом; источник и страница установлены. Ответ: Прямая комплексная квадратура по окружности (16384 точки); Сравнение с независимо прочитанным ответом. Решение проверено отдельно; численная проверка дополняет приведённое доказательство. Редакция 4 октября: развёрнуты промежуточные подстановки, производные и коэффициенты; конечный ответ сохранён.",
+        "statementSha256": "014dfbf0416f72c06b93377dae2816a633ae72883bdb323f2b69249e66168ac9",
+        "answerSha256": "9f68cbc6cfe5e68f5f3865ad75ebaa6ab3e18e0705855d1a1b6af0d361da9736"
+      },
+      "contourStepAudit": {
+        "integrand": "(pi*z + 2)/(pi*(2*sin(1/(3*z)) - 1))",
+        "center": "0",
+        "radius": "1/2",
+        "strategy": "outside",
+        "infinityCoefficients": {
+          "0": "-2/3 - 2/pi",
+          "1": "-4/9 - 4/(3*pi)",
+          "-1": "-1"
+        },
+        "residues": [
+          {
+            "point": "2/pi",
+            "residue": "-16*sqrt(3)/pi**3",
+            "order": 1
+          }
+        ]
+      }
+    }
+  ]
+}

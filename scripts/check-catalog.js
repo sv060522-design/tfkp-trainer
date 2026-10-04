@@ -208,5 +208,28 @@ for (const t of reviewed.filter(t=>t.diagram)) {
   assert(output.includes('<svg'), t.id + ': missing SVG');
   assert(!/NaN|undefined/.test(output), t.id + ': invalid SVG');
 }
-assert.equal(nodes.get('app').dataset.build, '2026-10-03-v29');
+assert.equal(nodes.get('app').dataset.build, '2026-10-04-v30');
+// A disclosed solution must update the displayed status immediately, including
+// the short solution; a manually closed block stays closed after a rerender.
+const reading=boot({hash:'#task='+encodeURIComponent(linkedId)});
+reading.run(`setLearningStatus('${linkedId}','not-started');onDisclosureToggle({dataset:{task:'${linkedId}',part:'short'},open:true})`);
+assert.equal(reading.run(`learningStatus('${linkedId}')`),'viewed');
+assert.match(reading.nodes.get('app').innerHTML,/<option value="viewed" selected>/);
+reading.run(`revealAll('${linkedId}');onDisclosureToggle({dataset:{task:'${linkedId}',part:'answer'},open:false});render()`);
+assert(!reading.nodes.get('app').innerHTML.includes('data-part="answer" open'));
+assert(reading.nodes.get('app').innerHTML.includes('Свернуть всё'));
+reading.run(`hideAll('${linkedId}')`);
+assert(!/<details[^>]*class="learning-block"[^>]*\sopen(?:\s|>)/.test(reading.nodes.get('app').innerHTML));
+reading.run(`onDisclosureToggle({dataset:{task:'${linkedId}',part:'answer'},open:true,isConnected:false})`);
+assert(!reading.run(`state.reveals['${linkedId}'].answer`));
+reading.nodes.get('importBox').value='draft survives filtering';
+reading.run('changeFilter("query","1997")');
+assert.equal(reading.nodes.get('importBox').value,'draft survives filtering');
+// Explicit learning status takes precedence over conflicting legacy solved.
+reading.nodes.get('importBox').value=JSON.stringify({[linkedId]:{solved:true,starred:true,learningStatus:'viewed'},'old-unavailable-id':{solved:true,starred:true}});
+reading.run('importProgress()');
+assert.equal(reading.run(`p('${linkedId}').solved`),false);
+assert.equal(boot().run(`learningStatus('${linkedId}')`),'viewed');
+assert.equal(reading.run('p("old-unavailable-id").starred'),true);
+assert.equal(reading.run('state.quality="needs-review";state.query="";filteredTasks().length'),1);
 console.log('Catalog and app OK: 500 solved tasks, quality/taxonomy/all filters, full variants, training, 501 pagination, deep links, safe rendering, migration/export/import/reload, SVGs');
