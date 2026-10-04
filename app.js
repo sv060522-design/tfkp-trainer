@@ -1,294 +1,90 @@
 const RAW_TASKS = [...(window.TFKP_TASKS || []), ...(window.TFKP_EXTRA_TASKS || [])];
-const OVERRIDES = window.TFKP_TASK_OVERRIDES || {};
 const PROGRESS_KEY = 'tfkp-trainer-progress-v2';
-const $ = (sel) => document.querySelector(sel);
-
-function uniq(arr) { return [...new Set(arr.filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'ru')); }
-function mergeTask(t) {
-  const o = OVERRIDES[t.id] || {};
-  const merged = { ...t, ...o };
-  if (o.tags || t.tags) merged.tags = [...(t.tags || []), ...(o.tags || [])];
-  return merged;
-}
-
+const $ = sel => document.querySelector(sel);
+const uniq = arr => [...new Set(arr.filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'ru',{numeric:true}));
+function mergeTask(t){const patch=window.TFKP_TASK_OVERRIDES?.[t.id]||{};return {...t,...patch,tags:uniq([...(t.tags||[]),...(patch.tags||[])])};}
 const ALL_TASKS = RAW_TASKS.map(mergeTask);
-// Exam recollections are source notes, not exercises with recoverable conditions.
-const SOURCE_NOTES = ALL_TASKS.filter(t => t.status === 'raw-memory');
-const STUDY_TASKS = ALL_TASKS.filter(t => t.status !== 'raw-memory');
-const TASKS = STUDY_TASKS.filter(t => t.statementPretty && t.answer && t.solution)
-  .sort((a, b) => String(b.year).localeCompare(String(a.year), 'ru', { numeric: true })
-    || String(a.variant).localeCompare(String(b.variant), 'ru', { numeric: true })
-    || String(a.taskNo).localeCompare(String(b.taskNo), 'ru', { numeric: true }));
-let state = { query: '', topic: 'all', year: 'all', kind: 'all', quality: 'all', status: 'all', activeId: TASKS[0]?.id || null, ticket: [] };
-let progressNotice = '';
-let progress = loadProgress();
-
-function validProgress(value) {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
-    && Object.values(value).every(entry => entry !== null && typeof entry === 'object'
-      && !Array.isArray(entry)
-      && (entry.solved === undefined || typeof entry.solved === 'boolean')
-      && (entry.starred === undefined || typeof entry.starred === 'boolean'));
+const SOURCE_NOTES = ALL_TASKS.filter(t=>t.status==='raw-memory');
+const STUDY_TASKS = ALL_TASKS.filter(t=>t.status!=='raw-memory');
+const TASKS = STUDY_TASKS.filter(t=>t.statementPretty && t.solution && t.answer).sort((a,b)=>String(b.year).localeCompare(String(a.year),'ru',{numeric:true})||String(a.variant).localeCompare(String(b.variant),'ru',{numeric:true})||String(a.taskNo).localeCompare(String(b.taskNo),'ru',{numeric:true}));
+const LEARNING_STATUSES = {'not-started':'Не решал','in-progress':'Решаю','solved-self':'Решил сам','solved-hint':'Решил с подсказкой','viewed':'Посмотрел решение','unclear':'Не понял'};
+let state={query:'',topic:'all',topics:[],subtopic:'all',year:'all',source:'all',kind:'all',difficulty:'all',quality:'all',status:'all',activeId:TASKS[0]?.id||null,ticket:[],trainingKind:'',trainingCount:5,visibleLimit:50,notice:'',pinned:false,reveals:{},filtersOpen:!(window.matchMedia?.('(max-width: 900px)').matches),listOpen:!(window.matchMedia?.('(max-width: 900px)').matches)};
+let progressNotice='';
+let progress=loadProgress();
+function validProgress(value){return value!==null && typeof value==='object' && !Array.isArray(value) && !Object.keys(value).some(k=>['__proto__','constructor','prototype'].includes(k)) && Object.values(value).every(e=>e!==null && typeof e==='object' && !Array.isArray(e) && (e.solved===undefined||typeof e.solved==='boolean') && (e.starred===undefined||typeof e.starred==='boolean') && (e.learningStatus===undefined||Object.hasOwn(LEARNING_STATUSES,e.learningStatus)));}
+function loadProgress(){try{const v=JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}');if(!validProgress(v))throw Error();return v;}catch{progressNotice='Не удалось прочитать сохранённые отметки. Восстанови их из экспортированного JSON.';return {};}}
+function saveProgress(value=progress){try{localStorage.setItem(PROGRESS_KEY,JSON.stringify(value));progressNotice='';return true;}catch{progressNotice='Браузер не сохранил изменения. Экспортируй прогресс перед закрытием страницы.';return false;}}
+function p(id){return progress[id]||{};}
+function learningStatus(id){return p(id).learningStatus||(p(id).solved?'solved-self':'not-started');}
+function setP(id,patch){progress[id]={...p(id),...patch,updatedAt:new Date().toISOString()};saveProgress();render();}
+function setLearningStatus(id,status){if(!Object.hasOwn(LEARNING_STATUSES,status))return;setP(id,{learningStatus:status,solved:['solved-self','solved-hint'].includes(status)});}
+function escapeHtml(str=''){return String(str).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));}
+const jsArg = value => escapeHtml(JSON.stringify(value));
+const suspicious = t => /по рукописной сверке|решение неполное|надо сверить|далее очевидно|маршрут такой без|TODO|PLACEHOLDER/i.test([t.solution,t.notes].join(' '));
+function statementChecked(t){return t.statementVerification==='source-verified';}
+function answerChecked(t){return ['independently-verified','source-verified','numeric-verified'].includes(t.answerVerification);}
+function solutionChecked(t){return t.solutionVerification==='reviewed' && !suspicious(t);}
+function isVerified(t){return statementChecked(t)&&answerChecked(t)&&solutionChecked(t)&&Boolean(t.statementPretty&&t.answer&&t.solution);}
+function isNeedsReview(t){return !isVerified(t);}
+function taskStatusChip(t){return `<span class="chip ${isVerified(t)?'green':'gold'}">${isVerified(t)?'✓ полностью проверено':'требует проверки'}</span>`;}
+function rich(text=''){
+ const source=escapeHtml(text).trim().replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');
+ return source.split(/\n{2,}/).map(x=>x.trim()).filter(Boolean).map(block=>/^\$\$[\s\S]*\$\$$/.test(block)?`<div class="math-block">${block}</div>`:block.split('\n').every(x=>/^[-–—]\s+/.test(x))?`<ul>${block.split('\n').map(x=>`<li>${x.replace(/^[-–—]\s+/,'')}</li>`).join('')}</ul>`:`<p>${block.replace(/\n/g,'<br>')}</p>`).join('');
 }
-function loadProgress() {
-  try {
-    const value = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
-    if (!validProgress(value)) throw new Error('Invalid progress');
-    return value;
-  } catch {
-    progressNotice = 'Не удалось прочитать сохранённые отметки. Можно восстановить их из экспортированного JSON.';
-    return {};
-  }
+function mdish(text=''){return rich(text);}
+function renderStatement(t){return `<div class="statement-rich">${rich(t.statementPretty||t.statement)}</div>`;}
+function plainTaskText(t){return (t.statementPretty||t.statement||'').replace(/\$\$|\\\(|\\\)/g,'').trim();}
+function taskTopics(t){return t.topics?.length?t.topics:[t.primaryTopic||t.topic];}
+function searchHaystack(t){return [t.id,t.title,t.primaryTopic,t.topic,t.statementPretty,t.answer,t.solution,t.sourceFile,t.sourceLabel,t.variant,t.year,...taskTopics(t),...(t.subtopics||[]),...(t.tags||[])].join(' ').toLowerCase();}
+function selectedTopics(){return state.topics.length?state.topics:(state.topic==='all'?[]:[state.topic]);}
+function filteredTasks(){const q=state.query.trim().toLowerCase();return TASKS.filter(t=>{
+ if(!selectedTopics().every(topic=>taskTopics(t).includes(topic)))return false;
+ if(state.subtopic!=='all'&&!t.subtopics?.includes(state.subtopic))return false;
+ if(state.year!=='all'&&t.year!==state.year)return false;
+ if(state.source!=='all'&&t.sourceFile!==state.source)return false;
+ if(state.kind!=='all'&&t.kind!==state.kind&&t.type!==state.kind)return false;
+ if(state.difficulty!=='all'&&t.difficulty!==Number(state.difficulty))return false;
+ if(state.quality==='verified'&&!isVerified(t))return false;
+ if(state.quality==='statement'&&statementChecked(t))return false;
+ if(state.quality==='answer'&&answerChecked(t))return false;
+ if(state.quality==='solution'&&solutionChecked(t))return false;
+ if(state.quality==='needs-review'&&!isNeedsReview(t))return false;
+ if(state.status==='solved'&&!p(t.id).solved)return false;
+ if(state.status==='starred'&&!p(t.id).starred)return false;
+ if(!['all','solved','starred'].includes(state.status)&&learningStatus(t.id)!==state.status)return false;
+ return !q||searchHaystack(t).includes(q);
+});}
+function updateHash(id){if(typeof location!=='undefined'&&typeof history!=='undefined')history.replaceState(null,'',`${location.pathname}${location.search}#task=${encodeURIComponent(id)}`);}
+function selectTask(id,pinned=false){if(!TASKS.some(t=>t.id===id))return;state.activeId=id;state.pinned=pinned;updateHash(id);render();}
+function openHashTask(){if(typeof location==='undefined')return;const id=new URLSearchParams(location.hash.slice(1)).get('task');if(id&&TASKS.some(t=>t.id===id)){state.activeId=id;state.pinned=true;}}
+function randomTask(){const a=filteredTasks();if(!a.length){state.notice='По выбранным фильтрам задач нет.';render();return;}selectTask(a[Math.floor(Math.random()*a.length)].id);}
+function makeTicket(){const eligible=new Set(filteredTasks().filter(t=>t.type==='semester').map(t=>t.variantId));const groups=new Map();for(const t of TASKS.filter(t=>t.type==='semester'&&eligible.has(t.variantId))){if(!groups.has(t.variantId))groups.set(t.variantId,[]);groups.get(t.variantId).push(t);}const variants=[...groups.values()].filter(g=>g.length>=5);if(!variants.length){state.notice='В выбранной выборке нет исторического варианта. Выбери семестровые или экзаменационные задачи.';render();return;}state.ticket=variants[Math.floor(Math.random()*variants.length)].sort((a,b)=>String(a.taskNo).localeCompare(String(b.taskNo),'ru',{numeric:true}));state.trainingKind='Реальный вариант';state.notice='Открыт полный исторический вариант. Тематические фильтры не обрезают его состав.';selectTask(state.ticket[0].id,true);}
+function makeTraining(){const pool=[...filteredTasks()];for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}state.ticket=pool.slice(0,Math.max(1,Math.min(20,Number(state.trainingCount)||5)));state.trainingKind='Тренировка по теме';state.notice=state.ticket.length?`В тренировке ${state.ticket.length} задач из текущей выборки.`:'По выбранным фильтрам задач нет.';if(state.ticket.length)selectTask(state.ticket[0].id,true);else render();}
+function exportProgress(){const blob=new Blob([JSON.stringify(progress,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='tfkp-progress.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+function importProgress(){let v;try{v=JSON.parse($('#importBox').value.trim());if(!validProgress(v))throw Error();}catch{return alert('Неверный формат прогресса. Текущие отметки сохранены.');}if(!saveProgress(v)){render();return;}progress=v;render();alert('Прогресс импортирован.');}
+function rememberFocus(){const e=document.activeElement;return e?.id?{id:e.id,start:e.selectionStart,end:e.selectionEnd}:null;}
+function restoreFocus(f){if(!f)return;const e=document.getElementById(f.id);if(!e)return;e.focus();try{e.setSelectionRange(f.start??e.value.length,f.end??e.value.length);}catch{}}
+function changeFilter(name,value){state[name]=value;state.visibleLimit=50;state.pinned=false;state.notice='';render({preserveFocus:name==='query'});}
+function addTopic(topic){if(topic==='all')return;state.topics=uniq([...selectedTopics(),topic]);state.topic='all';state.visibleLimit=50;state.pinned=false;render();}
+function removeTopic(topic){state.topics=selectedTopics().filter(x=>x!==topic);state.topic='all';state.visibleLimit=50;state.pinned=false;render();}
+function resetFilters(){Object.assign(state,{query:'',topic:'all',topics:[],subtopic:'all',year:'all',source:'all',kind:'all',difficulty:'all',quality:'all',status:'all',visibleLimit:50,pinned:false,notice:''});render();}
+function revealAll(id){state.reveals[id]='all';if(!p(id).solved&&!['in-progress','unclear'].includes(learningStatus(id))){progress[id]={...p(id),learningStatus:'viewed',updatedAt:new Date().toISOString()};saveProgress();}render();}
+function disclosure(t,key,label,body){const r=state.reveals[t.id];const open=r==='all'||r?.[key];return `<details class="learning-block" data-task="${escapeHtml(t.id)}" data-part="${escapeHtml(key)}" ${open?'open':''}><summary>${escapeHtml(label)}</summary><div class="learning-content">${body}</div></details>`;}
+function options(values,current,counts){return values.map(x=>`<option value="${escapeHtml(x)}" ${current===x?'selected':''}>${escapeHtml(x)}${counts?` — ${counts(x)}`:''}</option>`).join('');}
+function taskRow(t,active){return `<button class="task-row ${active?.id===t.id?'active':''} ${isVerified(t)?'verified-row':'raw-row'}" onclick="selectTask(${jsArg(t.id)},true)"><span class="badge">${escapeHtml(t.taskNo)}</span><span><span class="task-title">${escapeHtml(t.title)}</span><span class="task-meta">${escapeHtml(t.primaryTopic||t.topic)} · сложность ${t.difficulty||'—'}/5<br>${escapeHtml(t.sourceLabel)}</span></span><span class="icons">${isVerified(t)?'✓':''}${p(t.id).solved?' ✓':''}${p(t.id).starred?' ★':''}</span></button>`;}
+function render(opts={}){
+ window.MathJax?.typesetClear?.();
+ const focus=opts.preserveFocus?rememberFocus():null;const topics=uniq(TASKS.flatMap(taskTopics)),subs=uniq(TASKS.flatMap(t=>t.subtopics||[])),years=uniq(TASKS.map(t=>t.year)),sources=uniq(TASKS.map(t=>t.sourceFile));const arr=filteredTasks();const active=(state.pinned?TASKS:arr).find(t=>t.id===state.activeId)||arr[0]||null;if(active){state.activeId=active.id;updateHash(active.id);}const verified=TASKS.filter(isVerified).length;
+ document.getElementById('app').innerHTML=`<div class="app-shell"><header class="topbar"><div class="brand"><h1>ТФКП — тренажёр</h1><p>ФЭФМ МФТИ · самостоятельная подготовка · прогресс в браузере</p></div><div class="nav"><button class="primary" onclick="randomTask()">Случайная задача</button><button onclick="makeTicket()">Реальный вариант</button><button onclick="document.getElementById('progress-panel').scrollIntoView({behavior:'smooth'})">Прогресс</button></div></header><div class="layout"><aside class="sidebar"><div class="card filters"><input id="q" aria-label="Поиск задач" placeholder="Поиск по задаче, формуле или ID" value="${escapeHtml(state.query)}" autocomplete="off"><div class="stats"><div class="stat"><strong>${TASKS.length}</strong><span>в базе</span></div><div class="stat"><strong>${verified}</strong><span>полностью проверено</span></div><div class="stat"><strong>${TASKS.filter(t=>p(t.id).solved).length}</strong><span>решено</span></div><div class="stat"><strong>${TASKS.filter(t=>p(t.id).starred).length}</strong><span>повторить</span></div></div><details id="filterPanel" ${state.filtersOpen?'open':''}><summary>Фильтры · найдено ${arr.length}</summary><div class="filter-controls"><label>Добавить тему<select id="topic"><option value="all">Все темы</option>${options(topics,'',x=>TASKS.filter(t=>taskTopics(t).includes(x)).length)}</select></label><div class="selected-topics">${selectedTopics().map(x=>`<button class="small" onclick="removeTopic(${jsArg(x)})">${escapeHtml(x)} ×</button>`).join('')}${selectedTopics().length>1?'<span class="task-meta">Нужны все выбранные темы</span>':''}</div><label>Подтема<select id="subtopic"><option value="all">Все подтемы</option>${options(subs,state.subtopic,x=>TASKS.filter(t=>t.subtopics?.includes(x)).length)}</select></label><div class="filter-grid"><label>Год<select id="year"><option value="all">Все годы</option>${options(years,state.year)}</select></label><label>Сложность<select id="difficulty"><option value="all">Все уровни</option>${[1,2,3,4,5].map(n=>`<option value="${n}" ${Number(state.difficulty)===n?'selected':''}>${n}/5</option>`).join('')}</select></label></div><label>Источник<select id="source"><option value="all">Все источники</option>${options(sources,state.source,x=>TASKS.filter(t=>t.sourceFile===x).length)}</select></label><label>Тип задачи<select id="kind"><option value="all">Все типы</option>${[['semester','Семестровая'],['exam','Экзамен'],['textbook','Задачник'],['oral','Устная']].map(([v,l])=>`<option value="${v}" ${state.kind===v?'selected':''}>${l}</option>`).join('')}</select></label><label>Качество<select id="quality">${[['all','Все'],['verified','Полностью проверенные'],['statement','Нужно проверить условие'],['answer','Нужно проверить ответ'],['solution','Нужно проверить решение']].map(([v,l])=>`<option value="${v}" ${state.quality===v?'selected':''}>${l}</option>`).join('')}</select></label><label>Мой статус<select id="status">${[['all','Все задачи'],['solved','Все решённые'],['starred','Повторить'],...Object.entries(LEARNING_STATUSES)].map(([v,l])=>`<option value="${v}" ${state.status===v?'selected':''}>${l}</option>`).join('')}</select></label><button class="small" onclick="resetFilters()">Сбросить фильтры</button></div></details><div class="training-controls"><label>Задач в тренировке<select id="trainingCount">${[5,10,15,20].map(n=>`<option value="${n}" ${state.trainingCount===n?'selected':''}>${n}</option>`).join('')}</select></label><button onclick="makeTraining()">Тренировка по теме</button></div></div><details id="taskListPanel" ${state.listOpen?'open':''}><summary>Список задач · ${arr.length}</summary><div class="task-list">${arr.slice(0,state.visibleLimit).map(t=>taskRow(t,active)).join('')}${arr.length>state.visibleLimit?`<button onclick="state.visibleLimit+=50;render()">Показать ещё · ${arr.length-state.visibleLimit} осталось</button>`:''}${!arr.length?'<p>По выбранным фильтрам задач нет.</p>':''}</div></details></aside><main class="main">${state.notice?`<div class="quality-note" role="status">${escapeHtml(state.notice)}</div>`:''}${progressNotice?`<div class="quality-note" role="alert">${escapeHtml(progressNotice)}</div>`:''}${active?detail(active):'<div class="card hero"><h2>Нет задач по фильтру</h2><button onclick="resetFilters()">Сбросить фильтры</button></div>'}${ticketBlock()}${progressBlock()}</main></div></div>`;
+ $('#q').addEventListener('input',e=>changeFilter('query',e.target.value));$('#topic').addEventListener('change',e=>addTopic(e.target.value));for(const id of ['subtopic','year','source','kind','difficulty','quality','status'])$('#'+id).addEventListener('change',e=>changeFilter(id,e.target.value));$('#trainingCount').addEventListener('change',e=>state.trainingCount=Number(e.target.value));$('#filterPanel').addEventListener('toggle',e=>state.filtersOpen=e.target.open);$('#taskListPanel').addEventListener('toggle',e=>state.listOpen=e.target.open);
+ for(const d of document.querySelectorAll?.('.learning-block')||[])d.addEventListener('toggle',()=>{const id=d.dataset.task,key=d.dataset.part;if(state.reveals[id]!=='all')state.reveals[id]={...(state.reveals[id]||{}),[key]:d.open};if(d.open&&key==='solution'&&!p(id).solved&&!['in-progress','unclear'].includes(learningStatus(id))){progress[id]={...p(id),learningStatus:'viewed',updatedAt:new Date().toISOString()};saveProgress();}if(d.open&&window.MathJax?.typesetPromise)window.MathJax.typesetPromise([d]);});
+ document.getElementById('app').dataset.build=window.TFKP_BUILD||'';
+ restoreFocus(focus);if(window.MathJax?.typesetPromise){window.MathJax.typesetPromise().catch(()=>{});}
 }
-function saveProgress(value = progress) {
-  try {
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(value));
-    progressNotice = '';
-    return true;
-  } catch {
-    progressNotice = 'Браузер не сохранил изменения. Экспортируй прогресс перед закрытием страницы.';
-    return false;
-  }
-}
-function p(id) { return progress[id] || {}; }
-function setP(id, patch) { progress[id] = { ...p(id), ...patch, updatedAt: new Date().toISOString() }; saveProgress(); render({ preserveFocus: false }); }
-function escapeHtml(str='') { return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
-
-function isVerified(t) {
-  // A checked answer or an old status flag does not verify an OCR statement.
-  return Boolean(t.statementPretty);
-}
-function isNeedsReview(t) {
-  return !isVerified(t) && (t.status === 'verified' || t.status === 'needs-review' || /OCR|сверить|черновик/i.test([t.notes, t.status].join(' ')));
-}
-function taskStatusChip(t) {
-  if (isVerified(t)) return '<span class="chip green">проверено</span>';
-  if (t.status === 'answer-added') return '<span class="chip green">есть ответ</span>';
-  if (t.status === 'raw-memory') return '<span class="chip gold">отзыв</span>';
-  if (isNeedsReview(t)) return '<span class="chip red">сверить OCR</span>';
-  return '<span class="chip">черновик</span>';
-}
-
-function rich(text='') {
-  const source = escapeHtml(text).trim();
-  if (!source) return '';
-  const blocks = source.split(/\n{2,}/).map(x => x.trim()).filter(Boolean);
-  return blocks.map(block => {
-    if (/^\s*\$\$[\s\S]*\$\$\s*$/.test(block)) {
-      return `<div class="math-block">${block}</div>`;
-    }
-    const lines = block.split('\n').map(x => x.trim()).filter(Boolean);
-    if (lines.length && lines.every(x => /^[-–—]\s+/.test(x))) {
-      return `<ul>${lines.map(x => `<li>${x.replace(/^[-–—]\s+/, '')}</li>`).join('')}</ul>`;
-    }
-    return `<p>${block.replace(/\n/g, '<br>')}</p>`;
-  }).join('');
-}
-
-function mdish(str='') {
-  return rich(String(str).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'));
-}
-
-function cleanRawStatement(str='') {
-  return String(str)
-    .replace(/[\u0000-\u001F\u007F]/g, '')
-    .replace(/\bZ\b/g, '∫')
-    .replace(/\br\b/g, '√')
-    .replace(/\b3q\b/g, '∛')
-    .replace(/\b4q\b/g, '∜')
-    .replace(/\bz2\b/g, 'z²')
-    .replace(/\bx2\b/g, 'x²')
-    .replace(/\bz3\b/g, 'z³')
-    .replace(/\bx3\b/g, 'x³')
-    .replace(/\be2z\b/g, 'e^{2z}')
-    .replace(/\bez\+1\b/g, 'e^{z+1}')
-    .replace(/\bsh\b/g, 'sinh')
-    .replace(/\bch\b/g, 'cosh')
-    .replace(/\bctg\b/g, 'cot')
-    .replace(/\btg\b/g, 'tan')
-    .replace(/\s+\./g, '.')
-    .replace(/\s+;/g, ';')
-    .trim();
-}
-
-function renderStatement(t) {
-  const text = t.statementPretty || cleanRawStatement(t.statement || '');
-  const body = t.statementPretty ? rich(text) : `<pre class="statement-pre raw-pre">${escapeHtml(text)}</pre>`;
-  const warn = isVerified(t) ? '' : `
-    <div class="quality-note">
-      Это условие перенесено из старого OCR-скана и может быть записано неидеально. Для точного решения сверяй формулу с источником: ${escapeHtml(t.sourceLabel || '')}.
-    </div>`;
-  return `<div class="statement-rich ${isVerified(t) ? 'verified' : 'raw'}">${body}</div>${warn}`;
-}
-
-function plainTaskText(t) {
-  return (t.statementPretty || t.statement || '').replace(/\$\$/g, '').replace(/\\\(|\\\)/g, '').trim();
-}
-
-function searchHaystack(t) {
-  return [t.title, t.topic, t.statement, t.statementPretty, t.answer, t.solution, t.sourceFile, t.sourceLabel, t.variant, t.year, ...(t.tags || [])]
-    .join(' ')
-    .toLowerCase();
-}
-
-function filteredTasks() {
-  const q = state.query.trim().toLowerCase();
-  return TASKS.filter(t => {
-    if (state.topic !== 'all' && t.topic !== state.topic) return false;
-    if (state.year !== 'all' && t.year !== state.year) return false;
-    if (state.kind === 'textbook' && t.type !== 'textbook') return false;
-    if (state.kind === 'semester' && t.type !== 'semester') return false;
-    if (state.kind === 'oral' && t.type !== 'oral') return false;
-    if (state.quality === 'verified' && !isVerified(t)) return false;
-    if (state.quality === 'needs-review' && !isNeedsReview(t)) return false;
-    if (state.status === 'solved' && !p(t.id).solved) return false;
-    if (state.status === 'starred' && !p(t.id).starred) return false;
-    if (q && !searchHaystack(t).includes(q)) return false;
-    return true;
-  });
-}
-
-function randomTask() {
-  const arr = filteredTasks();
-  if (!arr.length) return;
-  state.activeId = arr[Math.floor(Math.random()*arr.length)].id;
-  render({ preserveFocus: false });
-}
-function makeTicket() {
-  const groups = new Map();
-  for (const t of filteredTasks()) {
-    if (!groups.has(t.variantId)) groups.set(t.variantId, []);
-    groups.get(t.variantId).push(t);
-  }
-  const variants = [...groups.values()].filter(g => g.length >= 5);
-  if (!variants.length) { state.ticket = []; render({ preserveFocus: false }); return; }
-  const g = variants[Math.floor(Math.random()*variants.length)].sort((a,b)=>String(a.taskNo).localeCompare(String(b.taskNo),'ru'));
-  state.ticket = g;
-  state.activeId = g[0].id;
-  render({ preserveFocus: false });
-}
-function exportProgress() {
-  const blob = new Blob([JSON.stringify(progress,null,2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'tfkp-progress.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-function importProgress() {
-  const txt = $('#importBox').value.trim();
-  if (!txt) return alert('Вставь JSON прогресса в поле ниже.');
-  let value;
-  try {
-    value = JSON.parse(txt);
-    if (!validProgress(value)) throw new Error('Invalid progress');
-  } catch {
-    return alert('Неверный формат прогресса. Нужен JSON из кнопки «Экспорт прогресса». Текущие отметки сохранены.');
-  }
-  if (!saveProgress(value)) { render({ preserveFocus: false }); return; }
-  progress = value;
-  render({ preserveFocus: false });
-  alert('Прогресс импортирован.');
-}
-
-function rememberFocus() {
-  const el = document.activeElement;
-  if (!el || !el.id) return null;
-  return { id: el.id, start: el.selectionStart, end: el.selectionEnd };
-}
-function restoreFocus(f) {
-  if (!f) return;
-  const el = document.getElementById(f.id);
-  if (!el) return;
-  el.focus();
-  try { el.setSelectionRange(f.start ?? el.value.length, f.end ?? el.value.length); } catch {}
-}
-
-function render(opts={}) {
-  const focus = opts.preserveFocus ? rememberFocus() : null;
-  const topics = uniq(TASKS.map(t=>t.topic));
-  const years = uniq(TASKS.map(t=>t.year));
-  const arr = filteredTasks();
-  const active = arr.find(t=>t.id===state.activeId) || arr[0] || null;
-  if (active) state.activeId = active.id;
-  const solved = TASKS.filter(t=>p(t.id).solved).length;
-  const starred = TASKS.filter(t=>p(t.id).starred).length;
-  const verified = TASKS.filter(isVerified).length;
-
-  document.getElementById('app').innerHTML = `
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <h1>Теория функций комплексного переменного — тренажёр</h1>
-        <p>ФЭФМ МФТИ · семестровые и экзаменационные задачи · прогресс хранится в браузере</p>
-      </div>
-      <div class="nav">
-        <button class="primary" onclick="randomTask()">🎲 Случайная задача</button>
-        <button onclick="makeTicket()">🎟 Собрать вариант</button>
-        <button onclick="window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'})">⚙ Прогресс</button>
-      </div>
-    </header>
-    <div class="layout">
-      <aside class="sidebar">
-        <div class="card filters">
-          <input id="q" placeholder="Поиск: Лорана, 2014, вариант 41, вычет..." value="${escapeHtml(state.query)}" autocomplete="off" />
-          <div class="filter-grid">
-            <select id="topic"><option value="all">Все темы</option>${topics.map(x=>`<option ${state.topic===x?'selected':''} value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('')}</select>
-            <select id="year"><option value="all">Все годы</option>${years.map(x=>`<option ${state.year===x?'selected':''} value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('')}</select>
-          </div>
-          <select id="kind" aria-label="Источник задач">
-            <option value="all" ${state.kind==='all'?'selected':''}>Все источники</option>
-            <option value="semester" ${state.kind==='semester'?'selected':''}>Семестровые и экзамены</option>
-            <option value="oral" ${state.kind==='oral'?'selected':''}>Устные задачи</option>
-            <option value="textbook" ${state.kind==='textbook'?'selected':''}>Задачи из пособий</option>
-          </select>
-          <select id="status">
-            <option value="all" ${state.status==='all'?'selected':''}>Все задачи</option>
-            <option value="solved" ${state.status==='solved'?'selected':''}>Только решённые</option>
-            <option value="starred" ${state.status==='starred'?'selected':''}>Только со звёздочкой</option>
-          </select>
-          <div class="stats">
-            <div class="stat"><strong>${TASKS.length}</strong><span>в базе</span></div>
-            <div class="stat"><strong>${verified}</strong><span>проверено</span></div>
-            <div class="stat"><strong>${solved}</strong><span>решено</span></div>
-            <div class="stat"><strong>${starred}</strong><span>повторить</span></div>
-          </div>
-        </div>
-        <div class="task-list">
-          ${arr.slice(0, 500).map(t => `
-            <button class="task-row ${active && active.id===t.id?'active':''} ${isVerified(t)?'verified-row':'raw-row'}" onclick="state.activeId='${t.id}'; render({preserveFocus:false});">
-              <span class="badge">${escapeHtml(t.taskNo)}</span>
-              <span><span class="task-title">${escapeHtml(t.title)}</span><span class="task-meta">${escapeHtml(t.topic)}<br>${escapeHtml(t.sourceLabel)}</span></span>
-              <span class="icons"><span>${isVerified(t)?'✓':''}</span><span>${p(t.id).solved?'✓':''}</span><span>${p(t.id).starred?'★':''}</span></span>
-            </button>`).join('')}
-          ${arr.length > 500 ? `<div class="task-meta list-note">Показаны первые 500 задач. Уточни фильтр или поиск.</div>` : ''}
-          ${!arr.length ? `<div class="task-meta list-note">По такому фильтру задач нет.</div>` : ''}
-        </div>
-      </aside>
-      <main class="main">
-        <section class="hero card">
-          <h2>Практика по ТФКП</h2>
-          <p>Семестровые варианты прошлых лет и типовые задачи из пособий. У каждой карточки есть сверенное условие, ответ и полное решение. Выбирай тему, год или источник и сохраняй задачи для повторения.</p>
-          <div class="chips"><span class="chip blue">прогресс в браузере</span><span class="chip green">${verified} проверенных</span><span class="chip">экспорт/импорт</span><span class="chip">случайный вариант</span></div>
-        </section>
-        ${progressNotice ? `<div class="quality-note" role="alert">${escapeHtml(progressNotice)}</div>` : ''}
-        ${active ? detail(active) : '<div class="card hero"><h2>Нет задач по фильтру</h2></div>'}
-        ${ticketBlock()}
-        ${progressBlock()}
-      </main>
-    </div>
-  </div>`;
-
-  $('#q').addEventListener('input', e => { state.query=e.target.value; render({ preserveFocus: true }); });
-  $('#topic').addEventListener('change', e => { state.topic=e.target.value; render({ preserveFocus: false }); });
-  $('#year').addEventListener('change', e => { state.year=e.target.value; render({ preserveFocus: false }); });
-  $('#kind').addEventListener('change', e => { state.kind=e.target.value; render({ preserveFocus: false }); });
-  $('#status').addEventListener('change', e => { state.status=e.target.value; render({ preserveFocus: false }); });
-  restoreFocus(focus);
-  if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
-}
-
 function renderTaskDiagram(t) {
+  if (['keyhole','jordan'].includes(t.diagram?.type)) return renderMethodDiagram(t.diagram);
+  if (t.diagram?.type === 'annulus') return renderAnnulusDiagram(t.diagram);
+  if (t.diagram?.type === 'roots') return renderRootsDiagram(t.diagram);
   if (t.diagram?.type === 'branch-cut') return renderBranchDiagram(t.diagram);
   if (t.diagram?.type === 'sector-map') return renderSectorDiagram(t.diagram);
   if (['conformal-arc', 'hyperbolic-region', 'halfplane-disk'].includes(t.diagram?.type)) return renderConformalDiagram(t.diagram);
@@ -311,6 +107,27 @@ function renderTaskDiagram(t) {
     <text x="399" y="185" fill="#475569">Re z</text><text x="240" y="31" fill="#475569">Im z</text>
     ${rays}<circle cx="230" cy="160" r="4" fill="#2563eb" /><text x="239" y="181" fill="#475569">0</text>
   </svg><figcaption>Два луча с отмеченными углами. Начало координат входит в множество решений.</figcaption></figure>`;
+}
+function renderMethodDiagram(d) {
+ const keyhole=d.type==='keyhole';
+ const path=keyhole?'<path d="M220 163H346 A125 125 0 1 0 346 187H220 A20 20 0 1 1 220 163" fill="none" stroke="#2563eb" stroke-width="3"/><path d="M210 175H370" stroke="#dc2626" stroke-width="2" stroke-dasharray="5 4"/><text x="257" y="152">верхний берег →</text><text x="257" y="212">← нижний берег</text><text x="240" y="283">e²πⁱ⁽ˢ⁻¹⁾ · xˢ⁻¹</text><text x="138" y="160">ε</text><text x="283" y="55">R</text><circle cx="123" cy="140" r="4" fill="#dc2626"/><text x="62" y="124">полюс r</text>':'<path d="M65 175 A145 145 0 0 1 355 175" fill="none" stroke="#2563eb" stroke-width="3"/><path d="M65 175H355" stroke="#2563eb" stroke-width="3"/><text x="87" y="161">−R</text><text x="331" y="161">R</text><text x="177" y="119">Im z &gt; 0</text><text x="171" y="219">по оси слева направо →</text><text x="125" y="272">|eⁱᵏᶻ| = e⁻ᵏ ⁱᵐ ᶻ, k &gt; 0</text><circle cx="242" cy="98" r="4" fill="#dc2626"/><text x="251" y="94">полюс</text>';
+ return `<figure class="solution-diagram"><svg viewBox="0 0 420 340" role="img" aria-label="${keyhole?'Контур с разрезом по положительной полуоси':'Контур в верхней полуплоскости'}"><path d="M20 175H400 M210 315V15" stroke="#94a3b8"/><text x="367" y="170">Re z</text><text x="220" y="26">Im z</text>${path}</svg><figcaption>${keyhole?'Положительный обход: верхний берег от ε к R, нижний — обратно. Малая окружность обходится по часовой стрелке.':'Для k > 0 дуга идёт от R к −R против часовой стрелки. При k < 0 контур отражается вниз и меняет ориентацию.'}</figcaption></figure>`;
+}
+
+function renderAnnulusDiagram(d) {
+  if (!d.center?.every(Number.isFinite) || !Number.isFinite(d.inner) || d.inner<0 || (d.outer!==null && (!Number.isFinite(d.outer)||d.outer<=d.inner))) return '';
+  const range=Math.max(d.outer||d.inner*2||2,...(d.poles||[]).map(p=>Math.hypot(p[0]-d.center[0],p[1]-d.center[1])),d.point?Math.hypot(d.point[0]-d.center[0],d.point[1]-d.center[1]):0)*1.28;
+  const scale=140/range, xy=p=>[210+(p[0]-d.center[0])*scale,175-(p[1]-d.center[1])*scale];
+  const ring=d.outer===null?'<rect x="20" y="20" width="380" height="310" fill="#e0f2fe"/>':`<circle cx="210" cy="175" r="${d.outer*scale}" fill="#e0f2fe" stroke="#2563eb" stroke-dasharray="6 4"/>`;
+  const hole=d.inner?`<circle cx="210" cy="175" r="${d.inner*scale}" fill="white" stroke="#2563eb" stroke-dasharray="6 4"/>`:'';
+  const poles=(d.poles||[]).map(p=>{const [px,py]=xy(p);return `<circle cx="${px}" cy="${py}" r="4" fill="#dc2626"/><text x="${px+7}" y="${py-7}" font-size="11">${escapeHtml(p[0]+(p[1]>=0?'+':'')+p[1]+'i')} (${p[2]})</text>`;}).join('');
+  const point=d.point?(()=>{const [px,py]=xy(d.point);return `<circle cx="${px}" cy="${py}" r="4" fill="#16a34a"/><text x="${px+7}" y="${py+14}">z₀</text>`;})():'';
+  return `<figure class="solution-diagram"><svg viewBox="0 0 420 360" role="img" aria-label="Кольцо сходимости ряда Лорана, заданная точка и полюса">${ring}${hole}<path d="M20 175H400 M210 330V20" stroke="#94a3b8"/><text x="363" y="169">Re u</text><text x="218" y="30">Im u</text><circle cx="210" cy="175" r="3" fill="#1d4ed8"/><text x="217" y="190">c</text>${poles}${point}<text x="24" y="349">${escapeHtml(d.outer===null?'Внешний радиус ∞':'Пунктир: границы не входят в кольцо')}</text></svg><figcaption>${escapeHtml(d.caption)}</figcaption></figure>`;
+}
+function renderRootsDiagram(d) {
+ if(!Number.isInteger(d.n)||d.n<2||d.n>16||!Number.isFinite(d.angle))return '';
+ const marks=Array.from({length:d.n},(_,k)=>{const a=d.angle+2*Math.PI*k/d.n,x=210+118*Math.cos(a),y=175-118*Math.sin(a);return `<circle cx="${x}" cy="${y}" r="4" fill="#2563eb"/><text x="${210+140*Math.cos(a)}" y="${180-140*Math.sin(a)}" text-anchor="middle">z${k}</text>`;}).join('');
+ return `<figure class="solution-diagram"><svg viewBox="0 0 420 350" role="img" aria-label="Корни на окружности"><circle cx="210" cy="175" r="118" fill="none" stroke="#cbd5e1"/><path d="M20 175H400 M210 325V20" stroke="#94a3b8"/>${marks}<text x="222" y="195">0</text></svg><figcaption>${escapeHtml(d.caption)}</figcaption></figure>`;
 }
 
 function renderBranchDiagram(d) {
@@ -336,7 +153,7 @@ function renderBranchDiagram(d) {
     const [x,y] = xy(p.at);
     return `<circle cx="${x}" cy="${y}" r="4" fill="#1d4ed8"/><text x="${x + 9}" y="${y + 18}" fill="#1e3a8a">${escapeHtml(p.label)}</text>`;
   }).join('');
-  return `<figure class="solution-diagram"><svg viewBox="0 0 420 370" role="img" aria-label="Разрез и точки нормировки на комплексной плоскости">
+  return `<figure class="solution-diagram"><svg viewBox="0 0 420 370" role="img" aria-label="${escapeHtml(d.caption || 'Геометрическая схема на комплексной плоскости')}">
     <path d="M20 185H400 M210 350V20" stroke="#94a3b8" fill="none"/><text x="362" y="177">Re z</text><text x="220" y="26">Im z</text>
     ${circles}${contours}${segments}${arcs}${points}</svg><figcaption>${escapeHtml(d.caption || 'Красным обозначен удалённый разрез.')}</figcaption></figure>`;
 }
@@ -388,32 +205,9 @@ function renderConformalDiagram(d) {
   return `<figure class="solution-diagram mapping-diagram"><div class="mapping-panels"><div>${source}</div><span class="mapping-arrow" aria-hidden="true">→</span><div>${target}</div></div><figcaption>${escapeHtml(caption)}</figcaption></figure>`;
 }
 
-function detail(t) {
-  const pr = p(t.id);
-  return `<article class="detail card">
-    <div class="detail-head">
-      <div class="chips"><span class="chip blue">${escapeHtml(t.topic)}</span><span class="chip">${escapeHtml(t.year)}</span><span class="chip">${t.type === 'textbook' ? 'пример' : t.type === 'oral' ? 'устная задача' : 'вариант'} ${escapeHtml(t.variant)}</span>${taskStatusChip(t)}</div>
-      <h2>${escapeHtml(t.title)}</h2>
-      <div class="task-meta">Источник: ${escapeHtml(t.sourceLabel)} · ID: ${escapeHtml(t.id)}</div>
-    </div>
-    <div class="statement">${renderStatement(t)}</div>
-    <div class="actions">
-      <button class="${pr.solved?'primary':''}" onclick="setP('${t.id}', {solved:${!pr.solved}})">${pr.solved?'✓ Решено':'Отметить решённой'}</button>
-      <button onclick="setP('${t.id}', {starred:${!pr.starred}})">${pr.starred?'★ В повторении':'☆ В повторение'}</button>
-      <button onclick="navigator.clipboard?.writeText(${escapeHtml(JSON.stringify(plainTaskText(t)))})">Копировать условие</button>
-    </div>
-    ${t.notes ? `<section class="section"><div class="note-box">${mdish(t.notes)}</div></section>` : ''}
-    ${t.hints?.length ? `<section class="section"><h3>Подсказки</h3><ol>${t.hints.map(x=>`<li>${mdish(x)}</li>`).join('')}</ol></section>` : ''}
-    ${t.algorithm?.length ? `<section class="section"><h3>Маршрут решения</h3><ol>${t.algorithm.map(x=>`<li>${mdish(x)}</li>`).join('')}</ol></section>` : ''}
-    ${t.solution ? `<section class="section"><h3>Полное решение</h3><div class="solution-box">${mdish(t.solution)}${renderTaskDiagram(t)}</div></section>` : ''}
-    <section class="section"><h3>Ответ / сверка</h3><div class="answer-box">${mdish(t.answer)}</div></section>
-  </article>`;
-}
-function ticketBlock() {
-  if (!state.ticket.length) return '';
-  return `<section class="ticket card"><h3>Собранный вариант</h3><div class="task-meta">${escapeHtml(state.ticket[0].year)} · вариант ${escapeHtml(state.ticket[0].variant)}</div><div class="ticket-list">${state.ticket.map(t=>`<button class="task-row" onclick="state.activeId='${t.id}'; render({preserveFocus:false});"><span class="badge">${escapeHtml(t.taskNo)}</span><span><span class="task-title">${escapeHtml(t.title)}</span><span class="task-meta">${escapeHtml(t.topic)}</span></span><span></span></button>`).join('')}</div></section>`;
-}
-function progressBlock() {
-  return `<section class="ticket card"><h3>Прогресс</h3><p class="task-meta">Отметки «Решено» и «В повторении» автоматически сохраняются в этом браузере и остаются после перезагрузки и обновления сайта. Для резервной копии или переноса в другой браузер используй экспорт и импорт.</p><div class="progress-tools"><button onclick="exportProgress()">Экспорт прогресса</button><button onclick="importProgress()">Импорт прогресса</button><button onclick="if(confirm('Стереть прогресс?')){progress={};saveProgress();render({preserveFocus:false});}">Сбросить</button></div><textarea id="importBox" placeholder="Сюда можно вставить JSON прогресса для импорта"></textarea></section>`;
-}
+function detail(t){const pr=p(t.id),id=jsArg(t.id);const checks=[['Условие сверено',statementChecked(t)],['Ответ проверен',answerChecked(t)],['Решение проверено',solutionChecked(t)]];return `<article class="detail card"><div class="detail-head"><div class="chips"><span class="chip blue">${escapeHtml(t.primaryTopic||t.topic)}</span><span class="chip">${escapeHtml(t.year)}</span><span class="chip">Сложность ${t.difficulty||'—'}/5</span>${taskStatusChip(t)}</div><h2>${escapeHtml(t.title)}</h2><div class="task-meta">${escapeHtml(t.sourceLabel)} · ${escapeHtml(t.sourceTask||t.taskNo)}${t.sourcePage?` · PDF: ${t.sourcePage}`:''}</div><div class="quality-checks">${checks.map(([label,ok])=>`<span class="${ok?'check-ok':'check-pending'}">${ok?'✓':'○'} ${label}</span>`).join('')}</div></div><div class="statement">${renderStatement(t)}${t.statementDiagram?renderTaskDiagram({...t,diagram:t.statementDiagram}):''}</div><div class="actions"><label>Мой статус<select id="learningStatus" onchange="setLearningStatus(${id},this.value)">${Object.entries(LEARNING_STATUSES).map(([v,l])=>`<option value="${v}" ${learningStatus(t.id)===v?'selected':''}>${l}</option>`).join('')}</select></label><button onclick="setP(${id},{starred:${!pr.starred}})">${pr.starred?'★ В повторении':'☆ В повторение'}</button><button onclick="navigator.clipboard?.writeText(${jsArg(plainTaskText(t))})">Копировать условие</button><button onclick="navigator.clipboard?.writeText(location.href)">Ссылка на задачу</button><button onclick="revealAll(${id})">Раскрыть всё</button></div><section class="section learning-tools">${t.prerequisites?.length?disclosure(t,'prerequisites','Нужно знать',`<ul>${t.prerequisites.map(x=>`<li>${mdish(x)}</li>`).join('')}</ul>`):''}${disclosure(t,'idea','Показать идею',mdish(t.idea||t.hints?.[0]||''))}${(t.hints||[]).map((x,i)=>disclosure(t,'hint'+i,'Показать подсказку '+(i+1),mdish(x))).join('')}${disclosure(t,'route','Показать маршрут решения',`<ol>${(t.algorithm||[]).map(x=>`<li>${mdish(x)}</li>`).join('')}</ol>`)}${t.shortSolution?disclosure(t,'short','Показать краткое решение',mdish(t.shortSolution)):''}${disclosure(t,'solution','Показать подробное решение',`<div class="solution-box">${mdish(t.solution)}${renderTaskDiagram(t)}</div>`)}${disclosure(t,'answer','Показать ответ',`<div class="answer-box">${mdish(t.answer)}</div>`)}${(t.methodRefs||[]).map(key=>{const m=window.TFKP_METHODS?.[key];return m?disclosure(t,'method-'+key,'Метод: '+m.title,mdish(m.body)+(m.diagram?renderTaskDiagram({diagram:m.diagram}):'')+`<p class="task-meta">${escapeHtml(m.source||'Пояснение тренажёра')}</p>`):'';}).join('')}${disclosure(t,'source','Источник и проверка',`<p>${escapeHtml(t.sourceFile)} · ${escapeHtml(t.sourceTask||t.taskNo)} · ${t.sourcePrintedPage?'страница книги '+escapeHtml(t.sourcePrintedPage)+' · ':''}страница PDF ${escapeHtml(t.sourcePage||'—')}</p>${/^https?:\/\//i.test(t.sourceUrl||'')?`<p><a href="${escapeHtml(t.sourceUrl)}" target="_blank" rel="noopener">Открыть первичный источник</a></p>`:''}<p>${escapeHtml(t.verificationEvidence?.summary||'Проверка карточки не завершена.')}</p>`)}</section></article>`;}
+function ticketBlock(){return state.ticket.length?`<section class="ticket card"><h3>${escapeHtml(state.trainingKind)}</h3><p class="task-meta">${state.ticket.length} задач${state.trainingKind==='Реальный вариант'?` · ${escapeHtml(state.ticket[0].year)} · вариант ${escapeHtml(state.ticket[0].variant)}`:''}</p><div class="ticket-list">${state.ticket.map(t=>taskRow(t,{id:state.activeId})).join('')}</div></section>`:'';}
+function progressBlock(){return `<section id="progress-panel" class="ticket card"><h3>Прогресс</h3><p class="task-meta">Статусы и отметки повторения сохраняются в этом браузере после перезагрузки и обновления сайта. Для резервной копии или переноса на другое устройство экспортируй JSON. Старые отметки «Решено» и «В повторении» поддерживаются.</p><div class="progress-tools"><button onclick="exportProgress()">Экспорт прогресса</button><button onclick="importProgress()">Импорт прогресса</button><button onclick="if(confirm('Стереть прогресс?')){progress={};saveProgress();render();}">Сбросить</button></div><textarea id="importBox" aria-label="JSON прогресса" placeholder="JSON прогресса для импорта"></textarea></section>`;}
+openHashTask();
+window.addEventListener?.('hashchange',()=>{openHashTask();render();});
 render();

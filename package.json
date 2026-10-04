@@ -1,0 +1,10 @@
+{
+  "name": "tfkp-trainer",
+  "private": true,
+  "scripts": {
+    "test": "node scripts/check-catalog.js && node scripts/check-mathjax.js"
+  },
+  "devDependencies": {
+    "mathjax-full": "3.2.2"
+  }
+}

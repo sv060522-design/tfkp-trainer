@@ -13,10 +13,15 @@ const tasks=[...ctx.window.TFKP_TASKS,...ctx.window.TFKP_EXTRA_TASKS].map(t=>({.
 RegisterHTMLHandler(liteAdaptor());let where,errors=[],count=0;
 const tex=new TeX({packages:AllPackages,formatError:(jax,error)=>{errors.push({...where,error:error.message});return jax.formatError(error);}});
 const doc=mathjax.document('',{InputJax:tex,OutputJax:new SVG({fontCache:'none'})});
-for(const t of tasks)for(const field of ['statementPretty','solution','answer','hints','algorithm']) {
+for(const t of tasks)for(const field of ['statementPretty','solution','answer','hints','algorithm','idea','shortSolution','prerequisites']) {
  const value=Array.isArray(t[field])?t[field].join('\n'):t[field]||'';
  for(const m of value.matchAll(/\$\$([\s\S]*?)\$\$|\\\(([\s\S]*?)\\\)|(?<!\\)\$([^$]*?)\$/g)) {
   where={id:t.id,field,formula:m[1]??m[2]??m[3]};doc.convert(where.formula,{display:Boolean(m[1])});count++;
+ }
+}
+for(const [id,m] of Object.entries(ctx.window.TFKP_METHODS)) {
+ for(const match of m.body.matchAll(/\$\$([\s\S]*?)\$\$|\\\(([\s\S]*?)\\\)|(?<!\\)\$([^$]*?)\$/g)) {
+  where={id:'method:'+id,field:'body',formula:match[1]??match[2]??match[3]};doc.convert(where.formula,{display:Boolean(match[1])});count++;
  }
 }
 if(errors.length){console.error(JSON.stringify(errors,null,2));process.exit(1);}

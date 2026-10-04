@@ -78,70 +78,135 @@ const before = context.window.TFKP_TASK_OVERRIDES['2022-2023-osen-v1-n1'];
 context.window.TFKP_MERGE_OVERRIDES({ '2022-2023-osen-v1-n1': { notes: 'merge check' } });
 assert.equal(context.window.TFKP_TASK_OVERRIDES['2022-2023-osen-v1-n1'].solution, before.solution);
 
-// Exercise the actual filter/render/progress code with a small DOM stub.
-// No browser storage from the user is touched by this in-memory check.
-const preservedId = '2008-2009-осень-v81-n1';
-const saved = new Map([['tfkp-trainer-progress-v2', JSON.stringify({
-  [preservedId]: { solved: true, starred: true }
-})]]);
-const appNode = { innerHTML: '' };
-const input = { addEventListener() {}, focus() {}, setSelectionRange() {}, value: '' };
-context.document = {
-  activeElement: null,
-  getElementById: id => id === 'app' ? appNode : input,
-  querySelector: () => input,
-};
-context.localStorage = { getItem: key => saved.get(key), setItem: (key, value) => saved.set(key, value) };
-vm.runInContext(fs.readFileSync(path.join(root, 'app.js'), 'utf8'), context, { filename: 'app.js' });
-assert.equal(vm.runInContext('TASKS.length', context), published.length);
-assert.equal(vm.runInContext('STUDY_TASKS.length', context), published.length);
-assert.equal(vm.runInContext(`p('${preservedId}').solved`, context), true, 'preserved progress');
-assert.equal(vm.runInContext("state.kind='textbook'; filteredTasks().length", context), 33);
-vm.runInContext('render(); makeTicket()', context);
-assert(appNode.innerHTML.includes('пример 1.9'), 'textbook example label');
-assert(appNode.innerHTML.includes('writeText(&quot;'), 'clipboard handler must escape attribute quotes');
-assert.equal(vm.runInContext('state.ticket.length', context), 0, 'textbook examples are not a semester');
-assert.equal(vm.runInContext("state.kind='semester'; state.year='2008/2009'; filteredTasks().length", context), 28);
-assert.equal(vm.runInContext("state.query='вариант 82'; filteredTasks().length", context), 7);
-vm.runInContext(`setP('${preservedId}', {starred:false})`, context);
-const after = JSON.parse(saved.get('tfkp-trainer-progress-v2'));
-assert.equal(after[preservedId].solved, true, 'progress merge preserves solved');
-assert.equal(after[preservedId].starred, false);
-assert.equal(vm.runInContext("state.kind='oral'; state.query=''; state.year='all'; filteredTasks().length", context), 20);
-for (const invalid of ['null','[]','42','{"x":true}','{"x":{"solved":"yes"}}','{bad']) {
-  input.value = invalid;
-  context.alert = () => {};
-  const beforeImport = saved.get('tfkp-trainer-progress-v2');
-  vm.runInContext('importProgress()', context);
-  assert.equal(saved.get('tfkp-trainer-progress-v2'), beforeImport, 'invalid import must not erase progress');
+const reviewed = require('./load-catalog').loadCatalog().tasks;
+assert.equal(reviewed.length, 500);
+for (const t of reviewed) {
+  assert(t.primaryTopic && t.topics.includes(t.primaryTopic) && t.subtopics.length, t.id + ': taxonomy');
+  assert(Number.isInteger(t.difficulty) && t.difficulty >= 1 && t.difficulty <= 5, t.id + ': difficulty');
+  assert(t.sourceFile && t.sourceLabel && t.sourceTask && Number.isInteger(t.sourcePage) && t.sourcePage > 0, t.id + ': source');
+  assert.match(t.verificationEvidence.sourcePageSha256, /^[a-f0-9]{64}$/);
+  for (const [field, hash] of [['statementPretty','statementSha256'],['answer','answerSha256'],['solution','solutionSha256']]) {
+    assert.equal(require('node:crypto').createHash('sha256').update(t[field]).digest('hex'), t.verificationEvidence[hash], t.id + ': reviewed text changed');
+  }
+  assert.equal(t.solutionVerification, 'reviewed', t.id + ': solution not reviewed');
+  assert(t.solution.length > 300 && t.verificationEvidence.answerReview.checks.length >= 2, t.id + ': evidence');
+  assert(t.idea && t.hints.length >= 2 && t.algorithm.length >= 3 && t.shortSolution && t.prerequisites.length, t.id + ': learning content');
+  assert(t.methodRefs.length && t.methodRefs.every(key => context.window.TFKP_METHODS[key]), t.id + ': missing method');
+  assert(!/TODO|PLACEHOLDER|решение неполное|по рукописной сверке|далее очевидно/i.test(t.solution), t.id + ': placeholder');
+  if (t.primaryTopic === 'Ряды Лорана и Тейлора') assert(t.laurentAudit && Number.isFinite(t.laurentAudit.maxRelativeError), t.id + ': Laurent check');
 }
-input.value = JSON.stringify({[preservedId]: {solved:true, starred:true}});
-vm.runInContext('importProgress()', context);
-assert.equal(vm.runInContext(`p('${preservedId}').starred`, context), true, 'valid import');
-assert.equal(vm.runInContext('loadProgress()', context)[preservedId].solved, true, 'reload after import');
-const previousSet = context.localStorage.setItem;
-context.localStorage.setItem = () => { throw new Error('QuotaExceededError'); };
-vm.runInContext(`setP('${preservedId}', {starred:false})`, context);
-assert(appNode.innerHTML.includes('Браузер не сохранил изменения'), 'storage failure is visible');
-context.localStorage.setItem = previousSet;
-for (const type of ['conformal-arc', 'hyperbolic-region', 'halfplane-disk']) {
-  const config = JSON.stringify({type, start:0, end:270, target:'1'});
-  assert(vm.runInContext(`renderConformalDiagram(${config})`, context).includes('<svg'));
+assert.equal(reviewed.filter(t => t.primaryTopic === 'Ряды Лорана и Тейлора').length, 80);
+assert.equal(reviewed.filter(t => t.statementVerification === 'needs-review').length, 1);
+assert.equal(reviewed.find(t => t.id === 'kolesnikova-2016-example-2-3').answer.includes('frac13'), true);
+
+// Execute the application itself with isolated DOM and storage; never touch user browser data.
+const appCode = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+const saved = new Map();
+const oldId = '2008-2009-осень-v81-n1';
+saved.set('tfkp-trainer-progress-v2', JSON.stringify({[oldId]: {solved: true, starred: true}}));
+function boot({mobile = false, hash = '', extraTask = false} = {}) {
+  const {context: ctx} = require('./load-catalog').loadCatalog();
+  const nodes = new Map();
+  const node = id => {
+    if (!nodes.has(id)) nodes.set(id, {id, value: '', innerHTML: '', dataset: {}, addEventListener() {}, focus() {}, setSelectionRange() {}});
+    return nodes.get(id);
+  };
+  if (extraTask) ctx.window.TFKP_EXTRA_TASKS.push({...reviewed[0], id: 'qa-501-pagination', title: 'QA 501'});
+  ctx.window.matchMedia = () => ({matches: mobile});
+  ctx.window.addEventListener = () => {};
+  ctx.document = {activeElement: null, getElementById: node, querySelector: sel => node(sel.slice(1)), querySelectorAll: () => [], createElement: () => ({click() {}})};
+  ctx.localStorage = {getItem: key => saved.get(key), setItem: (key, value) => saved.set(key, value)};
+  ctx.location = {pathname: '/', search: '', hash, href: 'https://example.test/' + hash};
+  ctx.history = {replaceState: (_a, _b, url) => {ctx.location.hash = url.slice(url.indexOf('#'));}};
+  ctx.URLSearchParams = URLSearchParams;
+  ctx.URL = {createObjectURL: () => 'blob:qa', revokeObjectURL() {}};
+  ctx.Blob = Blob;
+  ctx.setTimeout = cb => {cb(); return 0;};
+  ctx.alert = () => {};
+  ctx.navigator = {clipboard: {writeText() {}}};
+  vm.runInContext(appCode, ctx, {filename: 'app.js'});
+  node('importBox');
+  return {ctx, nodes, run: code => vm.runInContext(code, ctx)};
 }
-assert(vm.runInContext(`renderBranchDiagram({range:2, segments:[[[-1,0],[1,0]]], points:[{at:[0,1],label:'i'}]})`, context).includes('<svg'));
-assert(vm.runInContext(`renderSectorDiagram({caption:'test'})`, context).includes('<svg'));
-// Check that export snapshots current marks into a downloadable JSON file.
-let exportedBlob, clicked = false, revoked = false;
-const exportLink = {click() { clicked = true; }};
-context.Blob = class { constructor(parts, options) { this.parts = parts; this.type = options.type; } };
-context.URL = {
-  createObjectURL(blob) { exportedBlob = blob; return 'blob:test-export'; },
-  revokeObjectURL(url) { assert.equal(url, 'blob:test-export'); revoked = true; }
-};
-context.document.createElement = tag => { assert.equal(tag, 'a'); return exportLink; };
-vm.runInContext('exportProgress()', context);
-assert.equal(exportedBlob.type, 'application/json');
-assert.equal(exportLink.download, 'tfkp-progress.json');
-assert.equal(JSON.stringify(JSON.parse(exportedBlob.parts.join(''))), vm.runInContext('JSON.stringify(progress)', context));
-assert(clicked && revoked, 'download is triggered and its temporary URL is released');
-console.log(`Catalog OK: ${published.length} complete cards from ${all.length} source records; filters, diagrams and progress passed`);
+const {ctx, nodes, run} = boot();
+assert.equal(run('TASKS.length'), 500);
+assert.equal(run(`learningStatus('${oldId}')`), 'solved-self');
+assert.equal(run(`p('${oldId}').starred`), true);
+assert.equal(run('TASKS.filter(isVerified).length'), 499);
+assert.equal(run('isVerified({statementPretty:"pretty"})'), false, 'pretty statement is not proof');
+for (const field of ['statementVerification', 'answerVerification', 'solutionVerification']) {
+  assert.equal(run(`isVerified({...TASKS.find(isVerified),${field}:'needs-review'})`), false);
+}
+for (const [filter, value, count] of [['kind','textbook',33],['kind','oral',20],['kind','semester',447],['quality','verified',499],['quality','statement',1],['quality','answer',0],['quality','solution',0]]) {
+  run('resetFilters()');
+  assert.equal(run(`state.${filter}=${JSON.stringify(value)};filteredTasks().length`), count, filter + value);
+}
+for (const name of ['year','source','subtopic','difficulty']) {
+  run('resetFilters()');
+  const value = run(`TASKS.find(t=>t.id==='${oldId}')[${JSON.stringify(name === 'source' ? 'sourceFile' : name === 'subtopic' ? 'subtopics' : name)}]`);
+  const chosen = Array.isArray(value) ? value[0] : value;
+  assert(run(`state.${name}=${JSON.stringify(chosen)};filteredTasks().every(t=>${name === 'source' ? 't.sourceFile' : name === 'subtopic' ? 't.subtopics.includes(state.subtopic)' : `t.${name}`} ${name === 'subtopic' ? '' : `===state.${name}`})`));
+  assert(run('filteredTasks().length') > 0);
+}
+run('resetFilters();state.topics=["Ряды Лорана и Тейлора","Особые точки"]');
+assert(run('filteredTasks().length') > 0);
+assert(run('filteredTasks().every(t=>state.topics.every(x=>taskTopics(t).includes(x)))'), 'topics use AND');
+run('state.trainingCount=10;makeTraining()');
+assert.equal(run('state.ticket.length'), 10);
+assert.equal(run('new Set(state.ticket.map(t=>t.id)).size'), 10);
+assert(run('state.ticket.every(t=>state.topics.every(x=>taskTopics(t).includes(x)))'));
+run('makeTicket()');
+assert.equal(run('state.ticket.length'), run('TASKS.filter(t=>t.variantId===state.ticket[0].variantId).length'), 'full historical variant');
+assert(run('state.ticket.length>=5'));
+run('resetFilters();state.kind="textbook";state.ticket=[];makeTicket()');
+assert.equal(run('state.ticket.length'), 0);
+run('resetFilters();state.query="no-such-qa-task";makeTraining();randomTask()');
+assert.equal(run('state.ticket.length'), 0);
+run('resetFilters();state.source="устные задачи.pdf";randomTask()');
+assert.equal(run('TASKS.find(t=>t.id===state.activeId).type'), 'oral');
+for (const status of ['not-started','in-progress','solved-self','solved-hint','viewed','unclear']) {
+  run(`setLearningStatus('${oldId}','${status}')`);
+  assert.equal(run(`learningStatus('${oldId}')`), status);
+  assert.equal(run(`p('${oldId}').solved`), ['solved-self','solved-hint'].includes(status));
+  assert.equal(run(`p('${oldId}').starred`), true, 'status preserves repeat');
+}
+run(`setLearningStatus('${oldId}','solved-hint')`);
+const second = boot();
+assert.equal(second.run(`learningStatus('${oldId}')`), 'solved-hint', 'reload');
+assert.equal(second.run(`p('${oldId}').starred`), true);
+run('exportProgress()');
+for (const invalid of ['null','[]','42','{"x":true}','{"x":{"solved":"yes"}}','{"x":{"learningStatus":"wrong"}}','{"__proto__":{}}','{bad']) {
+  nodes.get('importBox').value = invalid;
+  const old = saved.get('tfkp-trainer-progress-v2');run('importProgress()');
+  assert.equal(saved.get('tfkp-trainer-progress-v2'), old, 'invalid import is atomic');
+}
+nodes.get('importBox').value = JSON.stringify({[oldId]: {solved:true,starred:false,learningStatus:'solved-self'}});
+run('importProgress()');
+assert.equal(run(`p('${oldId}').starred`), false);
+assert.equal(boot().run(`p('${oldId}').solved`), true);
+const set = ctx.localStorage.setItem;ctx.localStorage.setItem = () => {throw new Error('quota');};
+run(`setP('${oldId}',{starred:true})`);
+assert(nodes.get('app').innerHTML.includes('Браузер не сохранил изменения'));
+ctx.localStorage.setItem = set;
+const linkedId = '2014-2015-осень-v41-n7';
+const linked = boot({hash:'#task='+encodeURIComponent(linkedId)});
+assert.equal(linked.run('state.activeId'), linkedId);
+assert(!/<details[^>]*class="learning-block"[^>]*\sopen(?:\s|>)/.test(linked.nodes.get('app').innerHTML), 'answers hidden by default');
+linked.run(`revealAll('${linkedId}')`);
+assert(linked.nodes.get('app').innerHTML.includes('data-part="answer" open'));
+assert.equal(linked.run(`learningStatus('${linkedId}')`), 'viewed');
+assert.match(run('mdish("**bold** <img src=x onerror=alert(1)>")'), /<strong>bold<\/strong> &lt;img/);
+assert(!run('mdish("**<script>bad</script>**")').includes('<script>'));
+const mobile = boot({mobile:true});
+assert.equal(mobile.run('state.filtersOpen || state.listOpen'), false);
+const extended = boot({extraTask:true});
+assert.equal(extended.run('TASKS.length'), 501);
+extended.run('state.visibleLimit=550;render()');
+assert(extended.nodes.get('app').innerHTML.includes('QA 501'), '501st task remains accessible');
+for (const t of reviewed.filter(t=>t.diagram)) {
+  const output = run(`renderTaskDiagram(TASKS.find(t=>t.id===${JSON.stringify(t.id)}))`);
+  assert(output.includes('<svg'), t.id + ': missing SVG');
+  assert(!/NaN|undefined/.test(output), t.id + ': invalid SVG');
+}
+assert.equal(nodes.get('app').dataset.build, '2026-10-03-v29');
+console.log('Catalog and app OK: 500 solved tasks, quality/taxonomy/all filters, full variants, training, 501 pagination, deep links, safe rendering, migration/export/import/reload, SVGs');
