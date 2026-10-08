@@ -208,7 +208,7 @@ for (const t of reviewed.filter(t=>t.diagram)) {
   assert(output.includes('<svg'), t.id + ': missing SVG');
   assert(!/NaN|undefined/.test(output), t.id + ': invalid SVG');
 }
-assert.equal(nodes.get('app').dataset.build, '2026-10-08-v36');
+assert.equal(nodes.get('app').dataset.build, '2026-10-08-v37');
 // A disclosed solution must update the displayed status immediately, including
 // the short solution; a manually closed block stays closed after a rerender.
 const reading=boot({hash:'#task='+encodeURIComponent(linkedId)});
@@ -317,3 +317,15 @@ assert.equal(saved.get('tfkp-trainer-progress-v2'),beforeFailedReset);
 assert.equal(saved.get('tfkp-trainer-progress-v2-solved-reset-backup'),backupBeforeFailure);
 assert.equal(failure.run(`learningStatus('${oldId}')`),'solved-hint');
 console.log('Progress collections OK: counters, solved/unsolved, status/topic grouping, reload, reversible one-time reset, storage failure recovery');
+
+collections.run(`showCollection('needs-review')`);
+assert.equal(collections.run('filteredTasks().length'),1,'the missing verified task is accessible');
+assert.equal(collections.run('filteredTasks()[0].id'),'2008-2009-осень-v82-n5');
+collections.run(`showCollection('all');setLearningStatus('${oldId}','solved-self');state.reveals['${oldId}']={solution:true};markUnsolved('${oldId}')`);
+assert.equal(collections.run(`learningStatus('${oldId}')`),'not-started');
+assert.equal(collections.run(`p('${oldId}').solved`),false);
+assert.equal(collections.run(`p('${oldId}').starred`),true);
+assert.equal(collections.run(`Object.keys(state.reveals['${oldId}']).length`),0);
+const unmarked=boot();
+assert.equal(unmarked.run(`learningStatus('${oldId}')`),'not-started','unmark survives reload');
+console.log('Verification explanation and unmarking OK');
