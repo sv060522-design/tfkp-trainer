@@ -104,7 +104,7 @@ const appCode = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 const saved = new Map();
 const oldId = '2008-2009-осень-v81-n1';
 saved.set('tfkp-trainer-progress-v2', JSON.stringify({[oldId]: {solved: true, starred: true}}));
-function boot({mobile = false, hash = '', extraTask = false} = {}) {
+function boot({mobile = false, hash = '', search = '', extraTask = false} = {}) {
   const {context: ctx} = require('./load-catalog').loadCatalog();
   const nodes = new Map();
   const node = id => {
@@ -115,8 +115,8 @@ function boot({mobile = false, hash = '', extraTask = false} = {}) {
   ctx.window.matchMedia = () => ({matches: mobile});
   ctx.window.addEventListener = () => {};
   ctx.document = {activeElement: null, getElementById: node, querySelector: sel => node(sel.slice(1)), querySelectorAll: () => [], createElement: () => ({click() {}})};
-  ctx.localStorage = {getItem: key => saved.get(key), setItem: (key, value) => saved.set(key, value)};
-  ctx.location = {pathname: '/', search: '', hash, href: 'https://example.test/' + hash};
+  ctx.localStorage = {getItem: key => saved.get(key), setItem: (key, value) => saved.set(key, value), removeItem: key => saved.delete(key)};
+  ctx.location = {pathname: '/', search, hash, href: 'https://example.test/' + search + hash};
   ctx.history = {replaceState: (_a, _b, url) => {ctx.location.hash = url.slice(url.indexOf('#'));}};
   ctx.URLSearchParams = URLSearchParams;
   ctx.URL = {createObjectURL: () => 'blob:qa', revokeObjectURL() {}};
@@ -208,7 +208,7 @@ for (const t of reviewed.filter(t=>t.diagram)) {
   assert(output.includes('<svg'), t.id + ': missing SVG');
   assert(!/NaN|undefined/.test(output), t.id + ': invalid SVG');
 }
-assert.equal(nodes.get('app').dataset.build, '2026-10-04-v34');
+assert.equal(nodes.get('app').dataset.build, '2026-10-08-v35');
 // A disclosed solution must update the displayed status immediately, including
 // the short solution; a manually closed block stays closed after a rerender.
 const reading=boot({hash:'#task='+encodeURIComponent(linkedId)});
@@ -262,3 +262,58 @@ assert.equal(reading.run(`learningStatus('${linkedId}')`),'not-started');
 reading.run(`onDisclosureToggle({dataset:{task:'${linkedId}',part:'short'},open:false});onDisclosureToggle({dataset:{task:'${linkedId}',part:'short'},open:true})`);
 assert.equal(reading.run(`learningStatus('${linkedId}')`),'viewed');
 console.log('Catalog and app OK: 500 solved tasks, quality/taxonomy/all filters, full variants, training, 501 pagination, deep links, safe rendering, migration/export/import/reload, SVGs');
+
+
+// Global notation and exact-power collection are final-catalogue guarantees.
+assert(published.every(t=>!JSON.stringify(t).includes('\\binom')), 'C notation in every visible task field');
+assert(!JSON.stringify(context.window.TFKP_METHODS).includes('\\binom'), 'C notation in methods');
+assert.equal(published.filter(t=>t.seriesReview).length,76);
+assert.equal(published.reduce((n,t)=>n+(t.seriesReview?.rings.length||0),0),81);
+assert(published.every(t=>!/далее очевидно|TODO|PLACEHOLDER|решение неполное/i.test(t.solution)));
+
+saved.clear();
+const collections=boot();
+collections.run(`setLearningStatus('${oldId}','solved-self');setP('${oldId}',{starred:true});setLearningStatus('${linkedId}','viewed');state.query='no result';state.topics=['Особые точки'];showCollection('solved')`);
+assert.equal(collections.run('filteredTasks().length'),1,'solved counter clears unrelated filters');
+assert.equal(collections.run('filteredTasks()[0].id'),oldId);
+assert(collections.nodes.get('app').innerHTML.includes('id="stat-solved"'));
+assert.equal(collections.run('state.listOpen'),true);
+collections.run(`showCollection('unsolved')`);
+assert.equal(collections.run('filteredTasks().length'),499);
+assert(collections.run(`filteredTasks().some(t=>t.id==='${linkedId}')`),'viewed task is still unsolved');
+collections.run(`showCollection('all');state.groupBy='completion'`);
+assert.equal(collections.run(`taskGroups(filteredTasks())[0].key`),'Решённые');
+assert.equal(collections.run(`taskGroups(filteredTasks())[0].tasks.length`),1);
+assert.equal(collections.run(`taskGroups(filteredTasks())[1].tasks.length`),499);
+collections.run(`state.visibleLimit=500;render()`);
+assert.equal((collections.nodes.get('app').innerHTML.match(/class="task-row /g)||[]).length,500,'grouping retains every task');
+for(const mode of ['learning','topic','none']){
+ collections.run(`state.groupBy='${mode}'`);
+ assert.equal(collections.run(`taskGroups(filteredTasks()).flatMap(g=>g.tasks).length`),500);
+ assert.equal(collections.run(`new Set(taskGroups(filteredTasks()).flatMap(g=>g.tasks.map(t=>t.id))).size`),500);
+}
+collections.run(`resetSolvedProgress()`);
+assert.equal(collections.run(`TASKS.filter(t=>p(t.id).solved).length`),0);
+assert.equal(collections.run(`p('${oldId}').starred`),true,'solved reset preserves stars');
+assert.equal(collections.run(`learningStatus('${linkedId}')`),'viewed','solved reset preserves other learning statuses');
+assert.equal(boot().run(`learningStatus('${oldId}')`),'not-started','reset survives reload');
+assert(collections.run(`resetBackup().entries['${oldId}'].solved`),'recoverable reset backup');
+collections.run(`undoSolvedReset()`);
+assert.equal(collections.run(`learningStatus('${oldId}')`),'solved-self');
+assert.equal(collections.run(`p('${oldId}').starred`),true);
+assert.equal(collections.run('resetBackup()'),null);
+
+const requested=boot({search:'?reset-solved=20261008'});
+assert.equal(requested.run(`p('${oldId}').solved`),false,'authorized reset link');
+requested.run(`setLearningStatus('${oldId}','solved-hint')`);
+assert.equal(boot({search:'?reset-solved=20261008'}).run(`learningStatus('${oldId}')`),'solved-hint','reset link is one-time, future progress survives');
+// A storage failure cannot silently discard the old progress or recovery copy.
+const failure=boot();
+const beforeFailedReset=saved.get('tfkp-trainer-progress-v2');
+const backupBeforeFailure=saved.get('tfkp-trainer-progress-v2-solved-reset-backup');
+failure.ctx.localStorage.setItem=(key,value)=>{if(key==='tfkp-trainer-progress-v2'&&value!==beforeFailedReset)throw Error('quota');saved.set(key,value);};
+assert.equal(failure.run(`resetSolvedProgress('qa-failure')`),false);
+assert.equal(saved.get('tfkp-trainer-progress-v2'),beforeFailedReset);
+assert.equal(saved.get('tfkp-trainer-progress-v2-solved-reset-backup'),backupBeforeFailure);
+assert.equal(failure.run(`learningStatus('${oldId}')`),'solved-hint');
+console.log('Progress collections OK: counters, solved/unsolved, status/topic grouping, reload, reversible one-time reset, storage failure recovery');

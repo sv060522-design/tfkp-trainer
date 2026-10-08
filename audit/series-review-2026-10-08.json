@@ -1,0 +1,387 @@
+{
+  "rationalTasks": 76,
+  "rings": 81,
+  "tasks": [
+    {
+      "id": "1996-1997-осень-v1-n1",
+      "rings": 1,
+      "maxRelativeError": 5.05542015268841e-62
+    },
+    {
+      "id": "1996-1997-осень-v2-n1",
+      "rings": 1,
+      "maxRelativeError": 6.061754661611151e-62
+    },
+    {
+      "id": "1996-1997-осень-v3-n1",
+      "rings": 1,
+      "maxRelativeError": 7.029005249303748e-34
+    },
+    {
+      "id": "1996-1997-осень-v4-n1",
+      "rings": 1,
+      "maxRelativeError": 2.2438272563941077e-61
+    },
+    {
+      "id": "1997-1998-осень-v1-n1",
+      "rings": 1,
+      "maxRelativeError": 1.5650715120219664e-61
+    },
+    {
+      "id": "1997-1998-осень-v2-n1",
+      "rings": 1,
+      "maxRelativeError": 5.2499524836695135e-62
+    },
+    {
+      "id": "1997-1998-осень-v3-n1",
+      "rings": 1,
+      "maxRelativeError": 5.478171846430957e-62
+    },
+    {
+      "id": "1997-1998-осень-v4-n1",
+      "rings": 1,
+      "maxRelativeError": 4.6810743370347896e-62
+    },
+    {
+      "id": "1998-1999-осень-v1-n1",
+      "rings": 1,
+      "maxRelativeError": 7.379863370577602e-62
+    },
+    {
+      "id": "1998-1999-осень-v2-n1",
+      "rings": 1,
+      "maxRelativeError": 5.62954917442288e-62
+    },
+    {
+      "id": "1998-1999-осень-v3-n1",
+      "rings": 1,
+      "maxRelativeError": 3.680117378363269e-61
+    },
+    {
+      "id": "1998-1999-осень-v4-n1",
+      "rings": 1,
+      "maxRelativeError": 1.5650715120219664e-61
+    },
+    {
+      "id": "1999-2000-осень-v1-n1",
+      "rings": 1,
+      "maxRelativeError": 1.8575727301828505e-62
+    },
+    {
+      "id": "1999-2000-осень-v2-n1",
+      "rings": 1,
+      "maxRelativeError": 1.2143907666791182e-45
+    },
+    {
+      "id": "1999-2000-осень-v3-n1",
+      "rings": 1,
+      "maxRelativeError": 4.5235840122778695e-62
+    },
+    {
+      "id": "1999-2000-осень-v4-n1",
+      "rings": 1,
+      "maxRelativeError": 3.5863215635494473e-62
+    },
+    {
+      "id": "2000-2001-осень-v1-n1",
+      "rings": 1,
+      "maxRelativeError": 2.552725913929562e-62
+    },
+    {
+      "id": "2000-2001-осень-v2-n1",
+      "rings": 1,
+      "maxRelativeError": 5.371265999650412e-62
+    },
+    {
+      "id": "2000-2001-осень-v3-n1",
+      "rings": 1,
+      "maxRelativeError": 1.2809321100062981e-61
+    },
+    {
+      "id": "2000-2001-осень-v4-n1",
+      "rings": 1,
+      "maxRelativeError": 5.494026041028999e-62
+    },
+    {
+      "id": "2001-2002-весна-v1-n1",
+      "rings": 1,
+      "maxRelativeError": 1.8220012716962142e-62
+    },
+    {
+      "id": "2001-2002-весна-v2-n1",
+      "rings": 1,
+      "maxRelativeError": 1.7969768309145636e-62
+    },
+    {
+      "id": "2001-2002-весна-v3-n1",
+      "rings": 1,
+      "maxRelativeError": 6.889743507861277e-62
+    },
+    {
+      "id": "2001-2002-весна-v4-n1",
+      "rings": 1,
+      "maxRelativeError": 6.067917897547232e-62
+    },
+    {
+      "id": "2001-2002-весна-v5-n1",
+      "rings": 1,
+      "maxRelativeError": 2.565073883894723e-33
+    },
+    {
+      "id": "2001-2002-осень-v1-nall",
+      "rings": 1,
+      "maxRelativeError": 9.899258933875345e-63
+    },
+    {
+      "id": "2001-2002-осень-v2-nall",
+      "rings": 1,
+      "maxRelativeError": 4.666450243714391e-63
+    },
+    {
+      "id": "2001-2002-осень-v3-nall",
+      "rings": 1,
+      "maxRelativeError": 3.3557010754862492e-62
+    },
+    {
+      "id": "2001-2002-осень-v4-nall",
+      "rings": 1,
+      "maxRelativeError": 9.584338166238148e-63
+    },
+    {
+      "id": "2002-2003-весна-v1-n1",
+      "rings": 1,
+      "maxRelativeError": 7.391797003569754e-62
+    },
+    {
+      "id": "2002-2003-весна-v2-n1",
+      "rings": 1,
+      "maxRelativeError": 1.3229339345545208e-52
+    },
+    {
+      "id": "2002-2003-весна-v3-n1",
+      "rings": 1,
+      "maxRelativeError": 3.8948305661772725e-62
+    },
+    {
+      "id": "2002-2003-весна-v4-n1",
+      "rings": 1,
+      "maxRelativeError": 1.3747749846625312e-30
+    },
+    {
+      "id": "2002-2003-осень-v1-n1",
+      "rings": 1,
+      "maxRelativeError": 8.283649384740968e-62
+    },
+    {
+      "id": "2002-2003-осень-v2-n1",
+      "rings": 1,
+      "maxRelativeError": 4.71767781260705e-62
+    },
+    {
+      "id": "2002-2003-осень-v3-n1",
+      "rings": 1,
+      "maxRelativeError": 4.67413856117618e-62
+    },
+    {
+      "id": "2002-2003-осень-v4-n1",
+      "rings": 1,
+      "maxRelativeError": 5.0775528063656956e-62
+    },
+    {
+      "id": "2003-2004-осень-v1-n2",
+      "rings": 1,
+      "maxRelativeError": 2.382937548930846e-62
+    },
+    {
+      "id": "2003-2004-осень-v2-n2",
+      "rings": 1,
+      "maxRelativeError": 1.0845455228119676e-60
+    },
+    {
+      "id": "2003-2004-осень-v3-n2",
+      "rings": 1,
+      "maxRelativeError": 1.3573435942175017e-61
+    },
+    {
+      "id": "2003-2004-осень-v4-n2",
+      "rings": 1,
+      "maxRelativeError": 3.191967839011039e-61
+    },
+    {
+      "id": "2005-2006-осень-v51-n1",
+      "rings": 1,
+      "maxRelativeError": 1.1106868220965424e-61
+    },
+    {
+      "id": "2005-2006-осень-v52-n1",
+      "rings": 1,
+      "maxRelativeError": 5.882533829076954e-62
+    },
+    {
+      "id": "2005-2006-осень-v53-n1",
+      "rings": 1,
+      "maxRelativeError": 9.157924372271415e-62
+    },
+    {
+      "id": "2005-2006-осень-v54-n1",
+      "rings": 1,
+      "maxRelativeError": 1.1768661663283758e-45
+    },
+    {
+      "id": "2006-2007-весна-fivt-v71-n1",
+      "rings": 1,
+      "maxRelativeError": 7.391797003569754e-62
+    },
+    {
+      "id": "2006-2007-весна-fivt-v72-n1",
+      "rings": 1,
+      "maxRelativeError": 1.3229339345545208e-52
+    },
+    {
+      "id": "2006-2007-весна-fivt-v73-n1",
+      "rings": 1,
+      "maxRelativeError": 3.8948305661772725e-62
+    },
+    {
+      "id": "2006-2007-весна-fivt-v74-n1",
+      "rings": 1,
+      "maxRelativeError": 1.3747749846625312e-30
+    },
+    {
+      "id": "2006-2007-осень-v51-n1",
+      "rings": 1,
+      "maxRelativeError": 1.8938623679374818e-52
+    },
+    {
+      "id": "2006-2007-осень-v52-n1",
+      "rings": 1,
+      "maxRelativeError": 3.37774797589218e-62
+    },
+    {
+      "id": "2006-2007-осень-v53-n1",
+      "rings": 1,
+      "maxRelativeError": 1.7922207142079726e-52
+    },
+    {
+      "id": "2006-2007-осень-v54-n1",
+      "rings": 1,
+      "maxRelativeError": 1.514692867089578e-52
+    },
+    {
+      "id": "2007-2008-осень-v71-n1",
+      "rings": 1,
+      "maxRelativeError": 3.3146465754629644e-62
+    },
+    {
+      "id": "2007-2008-осень-v72-n1",
+      "rings": 1,
+      "maxRelativeError": 7.442635242162962e-62
+    },
+    {
+      "id": "2007-2008-осень-v73-n1",
+      "rings": 1,
+      "maxRelativeError": 4.283670923985001e-62
+    },
+    {
+      "id": "2007-2008-осень-v74-n1",
+      "rings": 1,
+      "maxRelativeError": 7.789628633305356e-62
+    },
+    {
+      "id": "2008-2009-осень-v81-n1",
+      "rings": 1,
+      "maxRelativeError": 9.651038059809685e-62
+    },
+    {
+      "id": "2008-2009-осень-v82-n1",
+      "rings": 1,
+      "maxRelativeError": 7.050334887770971e-62
+    },
+    {
+      "id": "2008-2009-осень-v83-n1",
+      "rings": 1,
+      "maxRelativeError": 4.386762468766386e-62
+    },
+    {
+      "id": "2008-2009-осень-v84-n1",
+      "rings": 1,
+      "maxRelativeError": 1.9302665966557646e-61
+    },
+    {
+      "id": "2009-2010-осень-v91-n1",
+      "rings": 1,
+      "maxRelativeError": 1.041571799030276e-60
+    },
+    {
+      "id": "2009-2010-осень-v92-n1",
+      "rings": 1,
+      "maxRelativeError": 4.649875108300668e-61
+    },
+    {
+      "id": "2009-2010-осень-v93-n1",
+      "rings": 1,
+      "maxRelativeError": 6.099515016621766e-61
+    },
+    {
+      "id": "2009-2010-осень-v94-n1",
+      "rings": 1,
+      "maxRelativeError": 2.4737100891756912e-61
+    },
+    {
+      "id": "2014-2015-осень-v41-n2",
+      "rings": 1,
+      "maxRelativeError": 7.719242697097656e-62
+    },
+    {
+      "id": "2014-2015-осень-v42-n2",
+      "rings": 1,
+      "maxRelativeError": 7.944376706665134e-62
+    },
+    {
+      "id": "2014-2015-осень-v43-n2",
+      "rings": 1,
+      "maxRelativeError": 7.12280821796997e-62
+    },
+    {
+      "id": "2014-2015-осень-v44-n2",
+      "rings": 1,
+      "maxRelativeError": 1.0747242758142237e-61
+    },
+    {
+      "id": "2021-осень-v1-n2",
+      "rings": 1,
+      "maxRelativeError": 1.0396400174853851e-61
+    },
+    {
+      "id": "2024-2025-osen-v1-n1",
+      "rings": 1,
+      "maxRelativeError": 1.0998063056662805e-61
+    },
+    {
+      "id": "2022-2023-osen-v1-n2",
+      "rings": 1,
+      "maxRelativeError": 9.912539852333547e-62
+    },
+    {
+      "id": "kolesnikova-2016-example-1-13",
+      "rings": 1,
+      "maxRelativeError": 4.347294168338995e-36
+    },
+    {
+      "id": "oral-2007-2008-n7",
+      "rings": 3,
+      "maxRelativeError": 4.255291284360704e-61
+    },
+    {
+      "id": "kolesnikova-2016-example-1-12",
+      "rings": 4,
+      "maxRelativeError": 4.347294168338995e-36
+    },
+    {
+      "id": "kolesnikova-2016-example-1-14",
+      "rings": 1,
+      "maxRelativeError": 6.337788800025532e-62
+    }
+  ],
+  "styleReference": "Скубачевский, семинар 3, PDF страницы 18–21 (страницы семинара 2–5)"
+}
