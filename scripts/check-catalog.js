@@ -208,7 +208,7 @@ for (const t of reviewed.filter(t=>t.diagram)) {
   assert(output.includes('<svg'), t.id + ': missing SVG');
   assert(!/NaN|undefined/.test(output), t.id + ': invalid SVG');
 }
-assert.equal(nodes.get('app').dataset.build, '2026-10-08-v35');
+assert.equal(nodes.get('app').dataset.build, '2026-10-08-v36');
 // A disclosed solution must update the displayed status immediately, including
 // the short solution; a manually closed block stays closed after a rerender.
 const reading=boot({hash:'#task='+encodeURIComponent(linkedId)});

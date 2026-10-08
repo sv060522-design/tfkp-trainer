@@ -343,7 +343,11 @@ branch = branch.replace('В нуле биномиальная формула д�
 $$C_{-1/2}^{n}=\frac{(-1/2)(-3/2)\cdots(-(2n-1)/2)}{n!},\qquad
 (-1)^n C_{-1/2}^{n}=\frac{1\cdot3\cdots(2n-1)}{2^n n!}=\frac{(2n)!}{4^n(n!)^2}=\frac{C_{2n}^{n}}{4^n}.$$
 Для n=0 произведение пустое и равно 1. Здесь \(C_\alpha^n\) при нецелом α означает обобщённый коэффициент — произведение n последовательных множителей, делённое на n!, а \(C_{2n}^n\) — обычный биномиальный коэффициент. Подстановка t=z² даёт''')
-patch[branch_id] = {'solution': branch}
+patch[branch_id] = {'solution': branch, 'answer': r'''Около 0:
+$$\frac1{g(z)}=\sum_{n=0}^{\infty}\frac{C_{2n}^{n}}{4^n}z^{2n},\qquad |z|<1.$$
+Около ∞:
+$$\frac1{g(z)}=-i\sum_{n=0}^{\infty}\frac{C_{2n}^{n}}{4^n}z^{-2n-1},\qquad |z|>1.$$
+Внутренняя сумма совпадает с заданной ветвью в компоненте круга с удалёнными отрезками, содержащей 0. В верхней компоненте знак противоположный. Внешняя сумма совпадает с заданной ветвью во всём внешнем кольце.'''}
 
 from clarity_additions import CLARITY_PATCHES
 for id, values in CLARITY_PATCHES.items():
@@ -377,6 +381,6 @@ for id, card in CAT.items():
     patch[id] = changed
 
 output = ROOT/'data/batches/v35-series-review.js'
-output.write_text('// Explicit coefficient systems and collected powers; source identities are unchanged.\nwindow.TFKP_MERGE_OVERRIDES(' + json.dumps(patch, ensure_ascii=False, indent=2) + ');\nwindow.TFKP_BUILD = "2026-10-08-v35";\n')
+output.write_text('// Explicit coefficient systems and collected powers; source identities are unchanged.\nwindow.TFKP_MERGE_OVERRIDES(' + json.dumps(patch, ensure_ascii=False, indent=2) + ');\nwindow.TFKP_BUILD = "2026-10-08-v36";\n')
 (ROOT/'audit/series-review-2026-10-08.json').write_text(json.dumps({'rationalTasks': len(report), 'rings': sum(q['rings'] for q in report), 'tasks': report, 'styleReference': 'Скубачевский, семинар 3, PDF страницы 18–21 (страницы семинара 2–5)'}, ensure_ascii=False, indent=2))
 print('Written', output, 'rational tasks', len(report), 'patches', len(patch), flush=True)
