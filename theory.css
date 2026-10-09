@@ -1,0 +1,104 @@
+.section-switch { display:flex; gap:4px; padding:4px; border:1px solid var(--line); border-radius:14px; background:var(--panel); }
+.section-switch a { padding:9px 20px; border-radius:10px; text-decoration:none; font-weight:650; color:var(--muted); }
+.section-switch a.active { background:var(--blue); color:white; }
+.section-switch a:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+.ambiguity-count { font-size:13px; padding:10px; background:#fff5dc; color:#775100; text-align:left; }
+.ambiguity-note { margin:16px 24px 0; line-height:1.55; }
+.theory-tabs { display:flex; flex-wrap:wrap; gap:8px; padding:14px 24px; border-bottom:1px solid var(--line); background:var(--panel-2); }
+.theory-layout { display:grid; grid-template-columns:330px minmax(0,1fr); }
+.theory-sidebar { border-right:1px solid var(--line); background:#f3ede2; padding:20px 16px; overflow:auto; max-height:calc(100vh - 145px); position:sticky; top:73px; align-self:start; }
+.theory-sidebar input { width:100%; padding:12px; border:1px solid var(--line); border-radius:12px; background:white; }
+.theory-search label { display:block; font-size:13px; margin-bottom:7px; color:var(--muted); }
+.theory-contents { margin-top:20px; }
+.theory-contents summary { padding:6px 2px 12px; }
+.theory-section-list { display:grid; gap:7px; }
+.theory-section { display:flex; gap:10px; align-items:flex-start; text-align:left; padding:11px 10px; background:var(--panel); border-radius:12px; font-size:14px; line-height:1.35; }
+.theory-section.active { border-color:var(--blue); background:#edf0ff; }
+.theory-section-number { color:var(--blue); min-width:26px; font-size:17px; font-family:Georgia,serif; font-weight:bold; }
+.theory-section small { display:block; color:var(--muted); font-size:11px; margin-top:4px; }
+.theory-progress-summary { margin-top:20px; font-size:13px; line-height:1.8; color:var(--muted); }
+.theory-progress-summary strong { color:var(--green); }
+.theory-progress-summary button { display:block; margin-top:10px; }
+.theory-main { width:100%; min-width:0; max-width:1160px; padding:25px clamp(14px,3vw,40px); }
+.theory-article { overflow:hidden; }
+.theory-article-head { padding:24px; }
+.theory-article-head h2 { margin:13px 0 10px; font-family:Georgia,'Times New Roman',serif; font-weight:normal; font-size:29px; line-height:1.23; }
+.theory-article-head p { line-height:1.6; }
+.theory-note { background:#f5eeda; border-left:3px solid #bf9a50; padding:10px 12px; font-size:13px; }
+.theory-controls { display:flex; flex-wrap:wrap; gap:8px; margin-top:15px; }
+.theory-controls button, .button-link { font-size:13px; }
+.button-link { display:inline-flex; align-items:center; padding:10px 14px; border:1px solid var(--line); border-radius:12px; text-decoration:none; background:white; }
+.theory-counterparts { display:flex; flex-wrap:wrap; gap:7px; align-items:center; margin-top:18px; font-size:13px; color:var(--muted); }
+.theory-claim-index { margin-top:18px; font-size:13px; }
+.theory-claim-index summary { padding:10px 0; }
+.theory-claim-index > div { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; padding-top:8px; }
+.theory-claim-index button { display:flex; flex-direction:column; gap:4px; text-align:left; font-size:13px; line-height:1.35; }
+.theory-claim-index small { color:var(--muted); font-size:11px; }
+.theory-reader-toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; padding:13px 20px; border-block:1px solid var(--line); background:var(--panel-2); font-size:12px; color:var(--muted); position:sticky; top:73px; z-index:5; }
+.theory-reader-toolbar label { display:flex; align-items:center; gap:6px; }
+.theory-reader-toolbar select { padding:7px; border:1px solid var(--line); border-radius:8px; background:white; }
+.reader-help { font-size:12px; color:var(--muted); line-height:1.55; padding:0 20px; }
+.theory-reader { padding:0 16px 18px; background:#f4f0e9; }
+.theory-reader-page { margin-bottom:18px; }
+.theory-page-caption { font-size:12px; color:var(--muted); padding:6px 0; margin:0; }
+.theory-page-scroll { max-width:100%; overflow:auto; border:1px solid var(--line); background:white; border-radius:4px; -webkit-overflow-scrolling:touch; }
+.theory-page { position:relative; width:100%; background:white; overflow:hidden; }
+.theory-page canvas { display:block; max-width:none; }
+.theory-page-loading { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; }
+.theory-link-layer { position:absolute; inset:0; pointer-events:none; }
+.theory-pdf-link { position:absolute; pointer-events:auto; border-bottom:1px solid #495eaa; background:rgba(89,112,191,.035); border-radius:1px; }
+.theory-pdf-link:hover, .theory-pdf-link:focus-visible { background:rgba(89,112,191,.18); outline:2px solid #5a72c8; }
+.theory-claim-anchor { position:absolute; left:0; width:1px; height:1px; }
+.theory-claim-highlight { position:absolute; left:0; right:0; background:rgba(250,212,81,.16); border-left:3px solid #bd8c25; pointer-events:none; }
+.theory-page-error { padding:22px; font-size:13px; }
+.theory-page-error a { margin-left:12px; }
+.theory-section-navigation { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; padding:20px; }
+.theory-section-navigation button { font-size:13px; }
+.theory-search-results { font-size:13px; margin-top:16px; }
+.theory-search-results h3 { margin:0; }
+.theory-search-hit { display:block; width:100%; margin:6px 0; text-align:left; font-size:12px; padding:9px; line-height:1.4; }
+.theory-search-hit small { display:block; margin-top:3px; color:var(--muted); }
+.theory-loading { padding:40px; }
+.theory-quiz { overflow:hidden; }
+.theory-quiz-filters { display:grid; grid-template-columns:1fr 2fr 1fr; gap:12px; }
+.theory-quiz-filters label { display:grid; gap:6px; font-size:12px; color:var(--muted); }
+.theory-quiz-filters select { width:100%; border:1px solid var(--line); border-radius:10px; padding:10px; background:white; }
+.theory-quiz-question { padding:30px 24px; border-top:1px solid var(--line); background:#f5f4ff; }
+.theory-quiz-question h3 { font-family:Georgia,serif; font-size:30px; line-height:1.3; font-weight:normal; margin:0 0 22px; }
+.theory-quiz-question button { margin:0 6px 6px 0; }
+.theory-quiz-answer { padding:20px; border-top:1px solid var(--line); }
+.theory-quiz-answer .theory-page-scroll { margin:10px 0; }
+.theory-progress { padding:24px; margin-top:25px; }
+.theory-progress h2 { font-family:Georgia,serif; font-weight:normal; font-size:24px; margin:0 0 10px; }
+.theory-progress p { font-size:13px; line-height:1.6; }
+.theory-progress label { display:block; margin:15px 0 6px; font-size:12px; color:var(--muted); }
+.theory-progress textarea { width:100%; min-height:100px; border:1px solid var(--line); border-radius:10px; padding:12px; font:12px monospace; }
+.theory-shell button:disabled { cursor:default; opacity:.5; }
+@media (max-width:1000px) {
+  .topbar { flex-wrap:wrap; }
+  .theory-layout { grid-template-columns:280px minmax(0,1fr); }
+  .theory-sidebar { top:115px; }
+  .theory-reader-toolbar { top:115px; }
+  .theory-quiz-filters { grid-template-columns:1fr; }
+}
+@media (max-width:900px) {
+  .section-switch { align-self:flex-start; }
+  .theory-layout { grid-template-columns:1fr; }
+  .theory-sidebar { position:static; max-height:none; border-right:none; border-bottom:1px solid var(--line); padding:15px; }
+  .theory-search { max-width:100%; }
+  .theory-progress-summary { display:none; }
+  .theory-section-list { max-height:430px; overflow:auto; }
+  .theory-tabs { padding:12px 14px; gap:6px; }
+  .theory-tabs button { font-size:12px; padding:9px 10px; }
+  .theory-main { padding:18px 12px; }
+  .theory-article-head { padding:20px 16px; }
+  .theory-article-head h2 { font-size:25px; }
+  .theory-claim-index > div { grid-template-columns:1fr; }
+  .theory-reader-toolbar { position:static; padding:12px; }
+  .theory-reader { padding:0 8px 10px; }
+  .reader-help { padding:0 12px; }
+  .theory-quiz-question { padding:24px 16px; }
+  .theory-quiz-question h3 { font-size:25px; }
+  .theory-quiz-answer { padding:14px 10px; }
+  .theory-progress { padding:20px 16px; }
+}

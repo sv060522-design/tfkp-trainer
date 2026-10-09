@@ -317,3 +317,20 @@ assert.equal(saved.get('tfkp-trainer-progress-v2'),beforeFailedReset);
 assert.equal(saved.get('tfkp-trainer-progress-v2-solved-reset-backup'),backupBeforeFailure);
 assert.equal(failure.run(`learningStatus('${oldId}')`),'solved-hint');
 console.log('Progress collections OK: counters, solved/unsolved, status/topic grouping, reload, reversible one-time reset, storage failure recovery');
+
+// Returning a card to unsolved closes disclosed answers without losing its star.
+saved.clear();
+const unsolve=boot({hash:'#task='+encodeURIComponent(linkedId)});
+unsolve.run(`setP('${linkedId}',{starred:true});revealAll('${linkedId}');setLearningStatus('${linkedId}','solved-self');markUnsolved('${linkedId}')`);
+assert.equal(unsolve.run(`p('${linkedId}').solved`),false);
+assert.equal(unsolve.run(`learningStatus('${linkedId}')`),'not-started');
+assert.equal(unsolve.run(`p('${linkedId}').starred`),true);
+assert(!/<details[^>]*class="learning-block"[^>]*\sopen(?:\s|>)/.test(unsolve.nodes.get('app').innerHTML));
+assert.equal(boot().run(`learningStatus('${linkedId}')`),'not-started');
+unsolve.run(`showCollection('ambiguous')`);
+assert.equal(unsolve.run('filteredTasks().length'),1);
+assert.equal(unsolve.run('filteredTasks()[0].id'),'2008-2009-осень-v82-n5');
+assert.match(unsolve.nodes.get('app').innerHTML,/499 полностью проверенных \+ 1 с разобранной неоднозначностью = 500/);
+assert.match(unsolve.nodes.get('app').innerHTML,/Оба непрерывных выбора полностью разобраны/);
+console.log('New status and quality UI OK: explicit unsolved action, hidden answers, retained star, reload, 499 + 1 = 500');
+

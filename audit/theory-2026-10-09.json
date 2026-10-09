@@ -1,0 +1,18 @@
+{
+  "programSections": 20,
+  "ticketSections": 32,
+  "bookSections": 25,
+  "cards": 172,
+  "definitions": 66,
+  "sourcePages": {
+    "program": 97,
+    "tickets": 104,
+    "book": 204
+  },
+  "links": {
+    "program": 648,
+    "tickets": 718,
+    "book": 302
+  },
+  "emptyAnswers": []
+}
