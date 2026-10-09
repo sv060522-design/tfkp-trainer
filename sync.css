@@ -1,0 +1,15 @@
+.account-dialog { border:1px solid var(--line); border-radius:18px; background:var(--panel); color:var(--text); padding:24px; width:min(520px,calc(100% - 24px)); max-height:calc(100vh - 32px); overflow:auto; box-shadow:0 24px 80px #2225; }
+.account-dialog::backdrop { background:#17203580; }
+.account-dialog h2 { font:normal 26px/1.2 Georgia,serif; margin:0; }
+.account-dialog p { font-size:14px; line-height:1.6; }
+.account-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.account-heading button { min-width:44px; min-height:44px; font-size:23px; }
+.account-dialog form { display:grid; gap:14px; margin-top:18px; }
+.account-dialog form label { display:grid; gap:6px; font-size:14px; }
+.account-dialog input:not([type=checkbox]) { width:100%; min-width:0; padding:11px; border:1px solid var(--line); border-radius:10px; background:white; }
+.account-dialog .account-choice { display:flex; align-items:center; gap:8px; }
+.account-dialog input[type=checkbox] { width:18px; height:18px; accent-color:var(--blue); }
+.account-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.account-dialog #sync-status { color:var(--blue); background:#edf0ff; padding:10px 12px; border-radius:10px; }
+.account-open { font-size:13px; }
+@media(max-width:600px) { .account-dialog { padding:18px; } .account-dialog h2 { font-size:23px; } }

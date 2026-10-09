@@ -2,6 +2,7 @@
 """Verify complete source coverage, statement crops and every navigation target."""
 import hashlib
 import json
+import re
 from pathlib import Path
 import fitz
 
@@ -39,6 +40,7 @@ for key,meta in data['docs'].items():
     assert meta['sections'][-1]['end']==len(doc)
 for card in cards.values():
     assert card['segments'] and card['title'] and 'Доказательство' not in card['text']
+    assert not re.fullmatch(r'(Определение|Теорема|Следствие|Лемма|Утверждение) [\d.]+',card['title']),card['id']
     meta=data['docs'][card['answerDoc']]
     for seg in card['segments']:
         assert 1<=seg['page']<=meta['pages']
@@ -53,6 +55,9 @@ for card in cards.values():
 assert data['docs']['book']['sections'][0]['start']==8
 assert data['docs']['book']['pageIndex'][28]['printedPage']==28
 assert cards['definition-15-6']['title']=='Допустимая кривая'
+assert 'логарифм' in cards['corollary-15-5']['title']
+assert cards['definition-3-1']['title']=='Связное множество'
+assert cards['definition-14-1']['title']=='Мероморфная функция'
 assert cards['theorem-11-2']['locations']['program'][0]['section']==8
 assert cards['theorem-11-2']['locations']['tickets'][0]['section']==17
 print(f'Theory source OK: 20 topics, 32 tickets, 25 book chapters, 405 PDF pages, 172 statement cards, {total_links} valid links')

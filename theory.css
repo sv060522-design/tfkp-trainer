@@ -74,6 +74,24 @@
 .theory-progress label { display:block; margin:15px 0 6px; font-size:12px; color:var(--muted); }
 .theory-progress textarea { width:100%; min-height:100px; border:1px solid var(--line); border-radius:10px; padding:12px; font:12px monospace; }
 .theory-shell button:disabled { cursor:default; opacity:.5; }
+.quiz-statistics { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 20px; }
+.quiz-statistics button { display:flex; align-items:center; gap:7px; font-size:12px; }
+.quiz-statistics strong { font-size:18px; color:var(--blue); }
+.theory-quiz-filters { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.theory-quiz-filters input { width:100%; min-width:0; border:1px solid var(--line); border-radius:10px; padding:10px; background:white; }
+.quiz-card-list { margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
+.quiz-card-list summary { font-size:14px; }
+.quiz-card-rows { max-height:380px; overflow:auto; margin-top:14px; display:grid; gap:7px; }
+.quiz-card-row { display:grid; grid-template-columns:40px minmax(0,1fr); align-items:center; border:1px solid var(--line); border-radius:10px; background:white; }
+.quiz-card-row.current { border-color:var(--blue); background:#edf0ff; }
+.quiz-card-row label { display:flex; align-items:center; justify-content:center; min-height:44px; }
+.quiz-card-row input, .quiz-selection-toggle input { width:18px; height:18px; accent-color:var(--blue); }
+.quiz-card-row button { border:0; background:transparent; text-align:left; padding:10px 8px; line-height:1.45; }
+.quiz-card-row strong { display:block; font-size:13px; font-weight:600; }
+.quiz-card-row small { display:block; font-size:11px; color:var(--muted); margin-top:4px; }
+.quiz-selection-toggle { display:inline-flex; gap:8px; align-items:center; font-size:13px; padding:8px; }
+.quiz-prompt { color:var(--muted); font-size:14px; margin-top:0; }
+.theory-quiz-question { scroll-margin-top:120px; }
 @media (max-width:1000px) {
   .topbar { flex-wrap:wrap; }
   .theory-layout { grid-template-columns:280px minmax(0,1fr); }

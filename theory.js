@@ -6,6 +6,10 @@
   const MODES = {program:'По программе · 20 тем', tickets:'По билетам · 32', quiz:'Самопроверка', book:'Учебник Хасанова'};
   let data, dataPromise, pdfLibPromise, observer, version = 0, active = false, lastTask = '';
   let query = '', quizType = 'all', quizTopic = 'all', quizStatus = 'all', quizReveal = false;
+  let quizScopeDoc = 'program', quizSort = 'program', quizSearch = '', quizOnlySelected = false;
+  let quizSelected = new Set(), quizListOpen = window.innerWidth > 900;
+  const PREF_KEY = KEY + '-preferences';
+  let lastRoutes = {};
   let quizId = '', quizQueue = [], zoom = 'fit', progressError = '';
   const pdfs = new Map(), renderJobs = new Set();
   const isObject = v => v && typeof v === 'object' && !Array.isArray(v);
@@ -23,8 +27,33 @@
     } catch { progressError = 'Не удалось прочитать отметки теории. Импортируй резервную копию.'; return {topics:{},cards:{}}; }
   }
   let progress = readProgress();
+  try {
+    const prefs = JSON.parse(localStorage.getItem(PREF_KEY)||'{}');
+    if (Array.isArray(prefs.selected)) quizSelected = new Set(prefs.selected.filter(id=>typeof id==='string'));
+    if (['program','name','status','random'].includes(prefs.sort)) quizSort=prefs.sort;
+    quizOnlySelected=!!prefs.onlySelected;
+    if(['program','tickets','book'].includes(prefs.scopeDoc))quizScopeDoc=prefs.scopeDoc;
+    if(prefs.topic==='all'||/^\d{1,2}$/.test(prefs.topic||''))quizTopic=prefs.topic;
+    if(['all','definition','theorem'].includes(prefs.type))quizType=prefs.type;
+    if(['all','new','repeat','known'].includes(prefs.status))quizStatus=prefs.status;
+    if(typeof prefs.search==='string')quizSearch=prefs.search.slice(0,200);
+    if (isObject(prefs.routes)) for (const mode of ['program','tickets','book','quiz']) {
+      if (prefs.routes[mode]?.mode===mode) lastRoutes[mode]=prefs.routes[mode];
+    }
+  } catch {}
+  function savePreferences() {
+    try { localStorage.setItem(PREF_KEY,JSON.stringify({selected:[...quizSelected],sort:quizSort,routes:lastRoutes,onlySelected:quizOnlySelected,scopeDoc:quizScopeDoc,topic:quizTopic,type:quizType,status:quizStatus,search:quizSearch})); } catch {}
+  }
+  function uiState() { return {query,quizType,quizTopic,quizScopeDoc,quizStatus,quizSort,quizSearch,quizOnlySelected,quizSelected:[...quizSelected],quizListOpen,quizId,quizReveal,quizQueue:[...quizQueue],zoom}; }
+  function restoreUi(v) {
+    if(!isObject(v))return;
+    query=v.query||'';quizType=v.quizType||'all';quizTopic=v.quizTopic||'all';quizScopeDoc=v.quizScopeDoc||'program';
+    quizStatus=v.quizStatus||'all';quizSort=v.quizSort||'program';quizSearch=v.quizSearch||'';
+    quizOnlySelected=!!v.quizOnlySelected;quizSelected=new Set(v.quizSelected||[]);quizListOpen=!!v.quizListOpen;
+    quizId=v.quizId||'';quizReveal=!!v.quizReveal;quizQueue=v.quizQueue||[];zoom=v.zoom||'fit';
+  }
   function saveProgress(next) {
-    try { localStorage.setItem(KEY,JSON.stringify(next)); progress=next; progressError=''; return true; }
+    try { localStorage.setItem(KEY,JSON.stringify(next)); progress=next; progressError=''; window.TFKPSync?.changed('theory'); return true; }
     catch { progressError='Браузер не сохранил отметку. Экспортируй прогресс теории перед закрытием.'; return false; }
   }
   function route() {
@@ -39,9 +68,10 @@
   }
   function navigate(r) {
     const before=location.hash;
-    history.replaceState({...history.state,tfkpScroll:window.scrollY,tfkpQuery:query},'',location.href);
+    if (isActive()) lastRoutes[route().mode]=route();
+    history.replaceState({...history.state,tfkpScroll:window.scrollY,tfkpQuery:query,tfkpUI:uiState()},'',location.href);
     history.pushState({tfkpReturn:before,tfkpScroll:0},'',hashFor(r));
-    query=''; render(); window.scrollTo({top:0});
+    query=''; savePreferences(); render(); window.scrollTo({top:0});
   }
   function getSection(mode,item) {
     return data.docs[mode]?.sections.find(s=>s.id===Number(item)) || data.docs[mode]?.sections[0];
@@ -62,7 +92,7 @@
     navigate({mode:doc,item:s?.id||1,page:Number(page)});
   }
   function header() {
-    return `<header class="topbar"><div class="brand"><h1>ТФКП — подготовка</h1><p>ФЭФМ МФТИ · теория и задачи</p></div><nav class="section-switch" aria-label="Раздел подготовки"><a href="${E(lastTask||'#task=2024-2025-osen-v1-n1')}">Задачи</a><a class="active" aria-current="page" href="#section=theory&mode=program&item=1">Теория</a></nav><div class="nav"><button data-action="back" ${history.state?.tfkpReturn?'':'disabled'}>← К месту чтения</button><button data-action="copy">Ссылка</button></div></header>`;
+    return `<header class="topbar"><div class="brand"><h1>ТФКП — подготовка</h1><p>ФЭФМ МФТИ · теория и задачи</p></div><nav class="section-switch" aria-label="Раздел подготовки"><a href="${E(lastTask||'#task=2024-2025-osen-v1-n1')}">Задачи</a><a class="active" aria-current="page" href="${E(hashFor(lastRoutes[route().mode]||{mode:'program',item:1}))}">Теория</a></nav><div class="nav"><button data-action="back" ${history.state?.tfkpReturn?'':'disabled'}>← К месту чтения</button><button data-action="copy">Ссылка</button><button data-sync-action="open" class="account-open">${E(window.TFKPSync?.buttonLabel()||'Вход и синхронизация')}</button></div></header>`;
   }
   async function loadData() {
     if(data)return data;
@@ -117,25 +147,74 @@
     const references=s.references.filter(id=>!s.claimIds.includes(id)).map(cardById).filter(Boolean);
     return `<article class="card theory-article"><div class="theory-article-head"><div class="chips"><span class="chip blue">${r.mode==='program'?'Программа Волкова':r.mode==='tickets'?'Предполагаемые билеты':'Хасанов · МФТИ · 2022'}</span><span class="chip">${r.mode==='book'?'§':r.mode==='program'?'Тема':'Билет'} ${s.id}</span><span class="chip">${pages.length} ${pages.length===1?'страница':'стр.'}</span></div><h2>${E(s.title)}</h2><p class="task-meta">${E(s.source||data.sourceNotes[r.mode])}</p>${r.mode==='tickets'?'<p class="theory-note">Нумерация взята из присланной карты: это предполагаемые билеты, не утверждённый комплект.</p>':''}${r.mode==='book'&&s.extra?'<p class="theory-note">Дополнительная глава. §§24–25 не входят в присланные конспекты по программе и билетам.</p>':''}<div class="theory-controls"><button data-action="read" data-key="${key}">${progress.topics[key]?'✓ Прочитано · снять отметку':'Отметить прочитанным'}</button>${s.claimIds.length?`<button data-action="practice-section" data-doc="${r.mode}" data-item="${s.id}">Повторить формулировки · ${s.claimIds.length}</button>`:''}<a class="button-link" href="${E(meta.file)}#page=${r.page||s.start}" target="_blank" rel="noopener">Открыть PDF</a></div>${counterparts.length?`<div class="theory-counterparts"><span>Этот материал также:</span>${counterparts.map(t=>`<button class="small" data-action="section" data-mode="${r.mode==='program'?'tickets':'program'}" data-item="${t.id}">${r.mode==='program'?'Билет':'Тема'} ${t.id}</button>`).join('')}</div>`:''}${claims.length?`<details class="theory-claim-index"><summary>Определения и утверждения · ${claims.length}</summary><div>${claims.map(c=>`<button data-action="claim" data-id="${c.id}" data-doc="${r.mode}"><span>${E(c.title)}</span><small>${E(c.label)}</small></button>`).join('')}</div></details>`:''}${references.length?`<details class="theory-claim-index"><summary>Упоминаемые результаты из других разделов · ${references.length}</summary><div>${references.map(c=>`<button data-action="claim" data-id="${c.id}" data-doc="${r.mode}">${E(c.title)} <small>${E(c.label)}</small></button>`).join('')}</div></details>`:''}</div><div class="theory-reader-toolbar"><span>Полный текст · формулировки, доказательства и поправки</span><label>Масштаб <select id="theory-zoom">${[['fit','По ширине'],['1','100%'],['1.5','150%'],['2','200%']].map(([value,label])=>`<option value="${value}" ${zoom===value?'selected':''}>${label}</option>`).join('')}</select></label></div><p class="reader-help">Подчёркнутые ссылки ведут к нужному утверждению. На телефоне увеличь масштаб и прокручивай страницу внутри рамки.</p><div class="theory-reader" aria-label="Полный текст раздела">${pages.map(page=>`<section class="theory-reader-page" id="theory-page-${page}"><p class="theory-page-caption">${r.mode==='book'?'Хасанов':'Конспект'} · страница PDF ${page}${r.mode==='book'&&meta.pageIndex[page-1].printedPage?' · печатная '+meta.pageIndex[page-1].printedPage:''}</p>${pageMarkup(r.mode,page)}</section>`).join('')}</div><div class="theory-section-navigation"><button data-action="section" data-mode="${r.mode}" data-item="${s.id-1}" ${s.id===1?'disabled':''}>← Предыдущий раздел</button><button data-action="section" data-mode="${r.mode}" data-item="${s.id+1}" ${s.id===meta.sections.length?'disabled':''}>Следующий раздел →</button></div></article>`;
   }
-  function quizPool() {
-    const match=/^(program|tickets|book)-(\d+)$/.exec(route().scope);
-    const scopeIds=match?getSection(match[1],Number(match[2])).claimIds:null;
-    return data.cards.filter(c=>(!scopeIds||scopeIds.includes(c.id)) && (quizType==='all'||(quizType==='definition'?c.kind==='definition':c.kind!=='definition')) &&
-      (quizTopic==='all'||c.locations.program?.some(l=>l.section===Number(quizTopic))) &&
-      (quizStatus==='all'||(progress.cards[c.id]||'new')===quizStatus));
+  const CARD_STATUS = {new:'Ещё не учил',known:'Знаю',repeat:'Повторить'};
+  const CARD_KIND = {definition:'Определение',theorem:'Теорема',lemma:'Лемма',corollary:'Следствие',proposition:'Утверждение'};
+  function quizScope() { return quizTopic==='all'?'':quizScopeDoc+'-'+quizTopic; }
+  function quizPool(selectedOnly=true) {
+    const match=/^(program|tickets|book)-(\d+)$/.exec(route().scope||quizScope());
+    const scopeIds=match?getSection(match[1],Number(match[2]))?.claimIds:null;
+    const search=quizSearch.trim().toLocaleLowerCase('ru');
+    const pool=data.cards.filter(c=>(!scopeIds||scopeIds.includes(c.id)) &&
+      (quizType==='all'||(quizType==='definition'?c.kind==='definition':c.kind!=='definition')) &&
+      (quizStatus==='all'||(progress.cards[c.id]||'new')===quizStatus) &&
+      (!search||[c.title,c.label].join(' ').toLocaleLowerCase('ru').includes(search)) &&
+      (!selectedOnly||!quizOnlySelected||quizSelected.has(c.id)));
+    const rank={repeat:0,new:1,known:2};
+    const byName=(a,b)=>a.title.localeCompare(b.title,'ru',{numeric:true});
+    if(quizSort==='name')pool.sort(byName);
+    else if(quizSort==='status')pool.sort((a,b)=>rank[progress.cards[a.id]||'new']-rank[progress.cards[b.id]||'new']||byName(a,b));
+    else pool.sort((a,b)=>(a.locations[quizScopeDoc]?.[0]?.section||999)-(b.locations[quizScopeDoc]?.[0]?.section||999));
+    return pool;
   }
   function selectQuizCard(exclude='') {
-    const pool=quizPool();if(!pool.length){quizId='';return;}
+    const pool=quizPool();if(!pool.length){quizId='';quizReveal=false;return;}
     const valid=new Set(pool.map(c=>c.id));quizQueue=quizQueue.filter(id=>valid.has(id)&&id!==exclude);
-    if(!quizQueue.length){quizQueue=pool.map(c=>c.id).filter(id=>id!==exclude);if(!quizQueue.length)quizQueue=pool.map(c=>c.id);for(let i=quizQueue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[quizQueue[i],quizQueue[j]]=[quizQueue[j],quizQueue[i]];}}
+    if(!quizQueue.length){
+      if(quizSort!=='random'&&exclude){const pos=pool.findIndex(c=>c.id===exclude);quizQueue=[...pool.slice(pos+1),...pool.slice(0,pos+1)].map(c=>c.id).filter(id=>id!==exclude);}
+      else quizQueue=pool.map(c=>c.id).filter(id=>id!==exclude);
+      if(!quizQueue.length)quizQueue=pool.map(c=>c.id);
+      if(quizSort==='random')for(let i=quizQueue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[quizQueue[i],quizQueue[j]]=[quizQueue[j],quizQueue[i]];}
+    }
     quizId=quizQueue.shift();quizReveal=false;
   }
+  function quizListMarkup() {
+    const pool=quizPool(false);
+    return `<details id="quiz-card-list" class="quiz-card-list" ${quizListOpen?'open':''}><summary>Выбрать карточки · найдено ${pool.length} · выбрано ${quizSelected.size}</summary><p class="task-meta">Открой любой вопрос по названию или отметь несколько для своей тренировки. Выбор сохраняется в этом браузере.</p><div class="theory-controls"><button data-action="select-found">Выбрать найденные</button><button data-action="clear-selection">Очистить выбор</button><label class="quiz-selection-toggle"><input id="quiz-only-selected" type="checkbox" ${quizOnlySelected?'checked':''}>Только выбранные</label></div><div class="quiz-card-rows">${pool.map(c=>`<div class="quiz-card-row ${c.id===quizId?'current':''}"><label><input type="checkbox" data-card-select="${E(c.id)}" aria-label="Выбрать: ${E(c.title)}" ${quizSelected.has(c.id)?'checked':''}></label><button data-action="open-card" data-id="${E(c.id)}" aria-current="${c.id===quizId?'true':'false'}"><strong>${E(c.title)}</strong><small>${E(CARD_KIND[c.kind])} · ${CARD_STATUS[progress.cards[c.id]||'new']}</small></button></div>`).join('')||'<p>Нет карточек по этим фильтрам.</p>'}</div></details>`;
+  }
   function quizMarkup(r) {
+    const scope=/^(program|tickets|book)-(\d+)$/.exec(r.scope);
+    if(scope){quizScopeDoc=scope[1];quizTopic=scope[2];}
     const pool=quizPool();const requested=r.card&&pool.find(c=>c.id===r.card);
     if(requested&&requested.id!==quizId){quizId=requested.id;quizReveal=false;}
-    if(!pool.some(c=>c.id===quizId))selectQuizCard();
+    if(!pool.some(c=>c.id===quizId)&&!(quizReveal&&r.card===quizId&&cardById(quizId)))selectQuizCard();
     const c=cardById(quizId);
-    return `<article class="card theory-quiz"><div class="theory-article-head"><span class="chip blue">Самопроверка</span><h2>Вспомни формулировку</h2><p>Сначала назови определение или теорему своими словами. Затем раскрой точную формулировку и проверь все условия.</p><div class="theory-quiz-filters"><label>Карточки<select id="quiz-type"><option value="all">Определения и утверждения</option><option value="definition" ${quizType==='definition'?'selected':''}>Только определения</option><option value="theorem" ${quizType==='theorem'?'selected':''}>Теоремы, леммы и следствия</option></select></label><label>Тема программы<select id="quiz-topic"><option value="all">Все 20 тем</option>${data.docs.program.sections.map(s=>`<option value="${s.id}" ${quizTopic===String(s.id)?'selected':''}>${s.id}. ${E(s.title)}</option>`).join('')}</select></label><label>Моя отметка<select id="quiz-status">${[['all','Все'],['new','Ещё не учил'],['repeat','Повторить'],['known','Знаю']].map(([v,l])=>`<option value="${v}" ${quizStatus===v?'selected':''}>${l}</option>`).join('')}</select></label></div><p class="task-meta">${pool.length} карточек в выборке · ${data.cards.length} всего · ${data.cards.filter(c=>c.kind==='definition').length} определений</p></div>${c?`<div class="theory-quiz-question"><p class="task-meta">${E(c.label)} · ${c.locations.program?.map(l=>'Тема '+l.section).filter((x,i,a)=>a.indexOf(x)===i).join(', ')||'Дополнение к билетам'}</p><h3>${E(c.title)}</h3><button class="primary" id="quiz-show-answer" data-action="reveal" aria-expanded="${quizReveal}">${quizReveal?'Скрыть ответ':'Показать ответ'}</button><button data-action="next">Следующая →</button></div>${quizReveal?`<section class="theory-quiz-answer" aria-label="Точная формулировка"><p class="task-meta">Формулировка из присланного полного конспекта; исходная нумерация Хасанова сохранена.</p>${c.segments.map(s=>pageMarkup(c.answerDoc,s.page,s.rect)).join('')}<div class="theory-controls"><button data-action="grade" data-grade="known" data-id="${c.id}">✓ Знаю</button><button data-action="grade" data-grade="repeat" data-id="${c.id}">↻ Повторить</button><button data-action="grade" data-grade="new" data-id="${c.id}">Снять отметку</button><button data-action="claim" data-id="${c.id}" data-doc="${c.answerDoc}">Открыть в теории</button></div><p class="task-meta" role="status">Моя отметка: ${{known:'знаю',repeat:'повторить',new:'ещё не учил'}[progress.cards[c.id]||'new']}.</p></section>`:''}`:'<div class="theory-quiz-question"><p>По этим фильтрам карточек нет.</p><button data-action="quiz-reset">Все карточки</button></div>'}</article>`;
+    const counts=Object.fromEntries(['new','repeat','known'].map(status=>[status,data.cards.filter(c=>(progress.cards[c.id]||'new')===status).length]));
+    return `<article class="card theory-quiz">
+      <div class="theory-article-head"><span class="chip blue">Самопроверка</span><h2>Вспомни формулировку</h2>
+        <p>Вопросы названы по смыслу. Вспомни определение или утверждение, затем раскрой ответ и проверь все условия.</p>
+        <div class="quiz-statistics" aria-label="Отметки формулировок">${[['all','Всего',data.cards.length],['new','Ещё не учил',counts.new],['repeat','Повторить',counts.repeat],['known','Знаю',counts.known]].map(([status,label,n])=>`<button data-action="card-collection" data-status="${status}"><strong>${n}</strong><span>${label}</span></button>`).join('')}</div>
+        <div class="theory-quiz-filters">
+          <label>Карточки<select id="quiz-type">${[['all','Определения и утверждения'],['definition','Только определения'],['theorem','Теоремы, леммы и следствия']].map(([v,l])=>`<option value="${v}" ${quizType===v?'selected':''}>${l}</option>`).join('')}</select></label>
+          <label>Разбиение<select id="quiz-source">${[['program','По программе'],['tickets','По билетам'],['book','По параграфам учебника']].map(([v,l])=>`<option value="${v}" ${quizScopeDoc===v?'selected':''}>${l}</option>`).join('')}</select></label>
+          <label>Раздел<select id="quiz-topic"><option value="all">Вся теория</option>${data.docs[quizScopeDoc].sections.map(sec=>`<option value="${sec.id}" ${quizTopic===String(sec.id)?'selected':''}>${sec.id}. ${E(sec.title)}</option>`).join('')}</select></label>
+          <label>Моя отметка<select id="quiz-status">${[['all','Все'],['new','Ещё не учил'],['repeat','Повторить'],['known','Знаю']].map(([v,l])=>`<option value="${v}" ${quizStatus===v?'selected':''}>${l}</option>`).join('')}</select></label>
+          <label>Порядок карточек<select id="quiz-sort">${[['program','По порядку разделов'],['name','По названию · А–Я'],['status','По отметке'],['random','В случайном порядке']].map(([v,l])=>`<option value="${v}" ${quizSort===v?'selected':''}>${l}</option>`).join('')}</select></label>
+          <label>Поиск карточек<input id="quiz-search" type="search" value="${E(quizSearch)}" placeholder="Например: связное множество" autocomplete="off"></label>
+        </div>
+        <p class="task-meta" id="quiz-pool-count">${pool.length} карточек в тренировке · ${data.cards.length} всего${quizOnlySelected?' · только выбранные':''}</p>
+        <button class="small" data-action="quiz-reset">Сбросить фильтры</button>
+        ${quizListMarkup()}
+      </div>
+      ${c?`<div class="theory-quiz-question"><p class="task-meta">${E(CARD_KIND[c.kind])}${c.locations.program?.length?' · '+[...new Set(c.locations.program.map(l=>'Тема '+l.section))].join(', '):' · Дополнение к билетам'}</p>
+        <p class="quiz-prompt">${c.kind==='definition'?'Дай определение понятия:':'Сформулируй утверждение и перечисли его условия:'}</p><h3>${E(c.title)}</h3>
+        <button class="primary" id="quiz-show-answer" data-action="reveal" aria-expanded="${quizReveal}">${quizReveal?'Скрыть ответ':'Показать ответ'}</button>
+        <button data-action="next" ${!pool.length?'disabled':''}>Следующая →</button>
+      </div>
+      ${quizReveal?`<section class="theory-quiz-answer" aria-label="Точная формулировка"><p class="task-meta">${E(c.label)} · точная формулировка из полного конспекта.</p>${c.segments.map(seg=>pageMarkup(c.answerDoc,seg.page,seg.rect)).join('')}
+        <div class="theory-controls"><button data-action="grade" data-grade="known" data-id="${c.id}">✓ Знаю</button><button data-action="grade" data-grade="repeat" data-id="${c.id}">↻ Повторить</button><button data-action="grade" data-grade="new" data-id="${c.id}">Снять отметку</button><button data-action="claim" data-id="${c.id}" data-doc="${c.answerDoc}">Открыть в теории</button></div>
+        <p class="task-meta" role="status">Моя отметка: ${CARD_STATUS[progress.cards[c.id]||'new'].toLocaleLowerCase('ru')}.</p>
+      </section>`:''}`:'<div class="theory-quiz-question"><p>По этим фильтрам карточек нет. Выбери вопросы в списке или измени фильтры.</p><button data-action="quiz-reset">Все карточки</button></div>'}
+    </article>`;
   }
   function progressMarkup() {
     return `<section class="card theory-progress" id="theory-progress"><h2>Прогресс теории</h2><p>Отметки прочитанных тем и выученных формулировок сохраняются в этом браузере. Для другого устройства используй экспорт и импорт.</p><div class="theory-controls"><button data-action="export">Экспорт теории</button><button data-action="import">Импорт теории</button></div><label for="theory-import">Резервная копия JSON</label><textarea id="theory-import" placeholder="Вставь экспортированный прогресс теории"></textarea><p id="theory-import-result" role="status"></p></section>`;
@@ -213,33 +292,47 @@
       await loadData();if(token!==version||!isActive())return;
       const r=route();const draft=document.getElementById('theory-import')?.value||'';
       app.innerHTML=`<div class="app-shell theory-shell">${header()}${modeTabs(r)}<div class="theory-layout">${sidebar(r)}<main class="theory-main">${progressError?`<p class="quality-note" role="alert">${E(progressError)}</p>`:''}${r.mode==='quiz'?quizMarkup(r):readerMarkup(r)}${progressMarkup()}</main></div></div>`;
-      app.dataset.build='2026-10-09-theory';
+      app.dataset.build='2026-10-09-v38';
+      lastRoutes[r.mode]=r; savePreferences(); window.TFKPSync?.mount();
       app.addEventListener('click',onClick,{signal:eventController().signal});
       document.getElementById('theory-import').value=draft;
       const search=document.getElementById('theory-search');let searchTimer;
       search.addEventListener('input',()=>{query=search.value;clearTimeout(searchTimer);searchTimer=setTimeout(()=>{const focus=search.selectionStart;render().then(()=>{const n=document.getElementById('theory-search');n?.focus();try{n.setSelectionRange(focus,focus);}catch{}});},180);});
       document.getElementById('theory-zoom')?.addEventListener('change',e=>{zoom=e.target.value;history.replaceState({...history.state,tfkpScroll:window.scrollY},'',location.href);render();});
-      for(const [id,key] of [['quiz-type','type'],['quiz-topic','topic'],['quiz-status','status']])document.getElementById(id)?.addEventListener('change',e=>{if(key==='type')quizType=e.target.value;else if(key==='topic')quizTopic=e.target.value;else quizStatus=e.target.value;quizQueue=[];quizId='';quizReveal=false;history.replaceState({},'',hashFor({mode:'quiz'}));render();});
+      for(const [id,key] of [['quiz-type','type'],['quiz-topic','topic'],['quiz-status','status'],['quiz-source','source'],['quiz-sort','sort']])document.getElementById(id)?.addEventListener('change',e=>{
+        if(key==='type')quizType=e.target.value;else if(key==='topic')quizTopic=e.target.value;else if(key==='source'){quizScopeDoc=e.target.value;quizTopic='all';}else if(key==='sort')quizSort=e.target.value;else quizStatus=e.target.value;
+        quizQueue=[];quizId='';quizReveal=false;savePreferences();history.replaceState({...history.state,tfkpScroll:0},'',hashFor({mode:'quiz',scope:quizScope()}));render();
+      });
+      const cardSearch=document.getElementById('quiz-search');let cardSearchTimer;
+      cardSearch?.addEventListener('input',()=>{quizSearch=cardSearch.value;clearTimeout(cardSearchTimer);cardSearchTimer=setTimeout(()=>{const pos=cardSearch.selectionStart;quizId='';quizReveal=false;quizQueue=[];history.replaceState({...history.state,tfkpScroll:window.scrollY},'',hashFor({mode:'quiz',scope:quizScope()}));render().then(()=>{const n=document.getElementById('quiz-search');n?.focus();try{n.setSelectionRange(pos,pos);}catch{}});},180);});
+      document.getElementById('quiz-card-list')?.addEventListener('toggle',e=>quizListOpen=e.target.open);
+      document.getElementById('quiz-only-selected')?.addEventListener('change',e=>{quizOnlySelected=e.target.checked;resetQuizChoice();});
+      for(const checkbox of document.querySelectorAll('[data-card-select]'))checkbox.addEventListener('change',()=>{if(checkbox.checked)quizSelected.add(checkbox.dataset.cardSelect);else quizSelected.delete(checkbox.dataset.cardSelect);savePreferences();if(quizOnlySelected)resetQuizChoice();else render();});
       schedulePages(token);restoreReading(r);
     } catch(e){if(token!==version)return;app.innerHTML=`<div class="app-shell">${header()}<main class="theory-loading"><h2>Теория пока не загрузилась</h2><p>Повтори загрузку страницы.</p><button id="theory-retry">Повторить</button></main></div>`;document.getElementById('theory-retry').onclick=()=>render();console.error(e);}
   }
   let controller;
   function eventController(){controller?.abort();controller=new AbortController();return controller;}
+  function resetQuizChoice() { quizId='';quizReveal=false;quizQueue=[];history.replaceState({...history.state,tfkpScroll:window.scrollY},'',hashFor({mode:'quiz',scope:quizScope()}));savePreferences();render(); }
   function onClick(e) {
     const button=e.target.closest('[data-action]');if(!button||button.disabled)return;
     e.preventDefault();const a=button.dataset.action,r=route();
     if(a==='back'){if(history.state?.tfkpReturn)history.back();return;}
     if(a==='copy'){navigator.clipboard?.writeText(location.href);button.textContent='Ссылка скопирована';return;}
-    if(a==='mode'){quizReveal=false;quizId='';navigate({mode:button.dataset.mode,item:1});return;}
+    if(a==='mode'){navigate(lastRoutes[button.dataset.mode]||{mode:button.dataset.mode,item:1});return;}
     if(a==='section'){navigate({mode:button.dataset.mode,item:Number(button.dataset.item)});return;}
     if(a==='claim'){openClaim(button.dataset.id,button.dataset.doc);return;}
     if(a==='page'){openPage(button.dataset.doc,Number(button.dataset.page));return;}
     if(a==='read'){const key=button.dataset.key;saveProgress({...progress,topics:{...progress.topics,[key]:!progress.topics[key]}});history.replaceState({...history.state,tfkpScroll:window.scrollY},'',location.href);render();return;}
-    if(a==='practice-section'){const s=getSection(button.dataset.doc,button.dataset.item);quizTopic=button.dataset.doc==='program'?String(s.id):'all';quizType='all';quizStatus='all';quizQueue=[...s.claimIds];quizId='';selectQuizCard();navigate({mode:'quiz',card:quizId,scope:button.dataset.doc+'-'+s.id});return;}
-    if(a==='reveal'){quizReveal=!quizReveal;history.replaceState({...history.state,tfkpScroll:window.scrollY},'',location.href);render();return;}
+    if(a==='practice-section'){const s=getSection(button.dataset.doc,button.dataset.item);quizScopeDoc=button.dataset.doc;quizTopic=String(s.id);quizType=quizStatus='all';quizSearch='';quizOnlySelected=false;quizQueue=[];quizId='';quizReveal=false;navigate({mode:'quiz',scope:quizScope()});return;}
+    if(a==='open-card'){quizId=button.dataset.id;quizReveal=false;quizQueue=[];history.replaceState({...history.state,tfkpScroll:window.scrollY},'',hashFor({mode:'quiz',card:quizId,scope:quizScope()}));render().then(()=>document.querySelector('.theory-quiz-question')?.scrollIntoView({block:'start',behavior:'smooth'}));return;}
+    if(a==='select-found'){for(const c of quizPool(false))quizSelected.add(c.id);savePreferences();render();return;}
+    if(a==='clear-selection'){quizSelected.clear();savePreferences();if(quizOnlySelected)resetQuizChoice();else render();return;}
+    if(a==='card-collection'){quizStatus=button.dataset.status;quizType=quizTopic='all';quizSearch='';quizOnlySelected=false;resetQuizChoice();return;}
+    if(a==='reveal'){quizReveal=!quizReveal;history.replaceState({...history.state,tfkpScroll:window.scrollY},'',hashFor({mode:'quiz',card:quizId,scope:quizScope()}));render();return;}
     if(a==='next'){selectQuizCard(quizId);history.replaceState({...history.state,tfkpScroll:0},'',hashFor({mode:'quiz',card:quizId,scope:route().scope}));render();return;}
-    if(a==='grade'){saveProgress({...progress,cards:{...progress.cards,[button.dataset.id]:button.dataset.grade}});if(quizStatus!=='all')selectQuizCard(button.dataset.id);history.replaceState({...history.state,tfkpScroll:window.scrollY},'',hashFor({mode:'quiz',card:quizId,scope:route().scope}));render();return;}
-    if(a==='quiz-reset'){quizType=quizTopic=quizStatus='all';quizId='';quizQueue=[];navigate({mode:'quiz'});return;}
+    if(a==='grade'){saveProgress({...progress,cards:{...progress.cards,[button.dataset.id]:button.dataset.grade}});history.replaceState({...history.state,tfkpScroll:window.scrollY},'',hashFor({mode:'quiz',card:quizId,scope:quizScope()}));render();return;}
+    if(a==='quiz-reset'){quizType=quizTopic=quizStatus='all';quizSearch='';quizOnlySelected=false;quizId='';quizReveal=false;quizQueue=[];navigate({mode:'quiz'});return;}
     if(a==='progress'){document.getElementById('theory-progress')?.scrollIntoView({behavior:'smooth'});return;}
     if(a==='export'){const text=JSON.stringify(progress,null,2);document.getElementById('theory-import').value=text;const url=URL.createObjectURL(new Blob([text],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='tfkp-theory-progress.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return;}
     if(a==='import'){const message=document.getElementById('theory-import-result');try{const v=JSON.parse(document.getElementById('theory-import').value);if(!validProgress(v))throw Error('format');if(!saveProgress(v)){message.textContent=progressError;return;}history.replaceState({...history.state,tfkpScroll:window.scrollY},'',location.href);render().then(()=>{document.getElementById('theory-import-result').textContent='Прогресс теории импортирован.';});}catch{message.textContent='Неверный JSON. Текущие отметки сохранены.';}return;}
@@ -247,6 +340,8 @@
   }
   function isActive(){return new URLSearchParams(location.hash.slice(1)).get('section')==='theory';}
   function deactivate(taskId){if(taskId)lastTask='#task='+encodeURIComponent(taskId);if(!active)return;active=false;++version;cancelRendering();controller?.abort();}
-  window.TFKPTheory={isActive,render,deactivate,openClaim,openPage,validProgress};
-  window.addEventListener('popstate',()=>{query=history.state?.tfkpQuery||'';if(isActive())render();});
+  window.TFKPTheory={isActive,render,deactivate,openClaim,openPage,validProgress,lastHash:()=>hashFor(lastRoutes[route().mode]||lastRoutes.program||{mode:'program',item:1})};
+  window.addEventListener('popstate',()=>{restoreUi(history.state?.tfkpUI);query=history.state?.tfkpQuery||query;if(isActive())render();});
+  window.addEventListener('tfkp:progress-changed',()=>{progress=readProgress();if(isActive())render();});
+  window.addEventListener('storage',e=>{if(e.key===KEY){progress=readProgress();if(isActive())render();}});
 })();
