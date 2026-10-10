@@ -67,8 +67,14 @@ async function startSession(res,user){
   setCookie(res,token);return {uid:user.uid,nickname:user.nickname,csrf};
 }
 function emptyProgress(){return {revision:0,records:{}};}
+function normalizeProgress(state){
+  // Redis Lua JSON implementations can omit a field decoded from JSON null.
+  // Its retained timestamp/op still represents a deletion, never an old mark.
+  for(const record of Object.values(state.records||{}))if(object(record)&&!Object.hasOwn(record,'value'))record.value=null;
+  return state;
+}
 async function getProgress(uid){
-  const raw=await redis(['GET',PREFIX+'progress:'+uid]);return raw?JSON.parse(raw):emptyProgress();
+  const raw=await redis(['GET',PREFIX+'progress:'+uid]);return raw?normalizeProgress(JSON.parse(raw)):emptyProgress();
 }
 function checkOrigin(req){
   let origin;try{origin=new URL(req.headers.origin);}catch{throw failure(403,'Открой вход на самом сайте.');}
@@ -150,7 +156,7 @@ async function handler(req,res){
     if(action!=='sync')throw failure(400,'Неизвестное действие.');
     await limit('sync:'+s.uid,120,60);
     const changes=validateChanges(body.changes);
-    const progress=JSON.parse(await redis(['EVAL',MERGE_SCRIPT,1,PREFIX+'progress:'+s.uid,JSON.stringify(changes)]));
+    const progress=normalizeProgress(JSON.parse(await redis(['EVAL',MERGE_SCRIPT,1,PREFIX+'progress:'+s.uid,JSON.stringify(changes)])));
     return send(200,{configured:true,user:{id:s.uid,nickname:s.nickname},progress});
   }catch(e){
     const status=e.status||(e instanceof SyntaxError?400:503);
@@ -161,3 +167,4 @@ async function handler(req,res){
 module.exports=handler;
 module.exports.validateChanges=validateChanges;
 module.exports.MERGE_SCRIPT=MERGE_SCRIPT;
+

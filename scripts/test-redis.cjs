@@ -19,7 +19,7 @@ function value(L,index){
  const absolute=lua.lua_absindex(L,index),result={};lua.lua_pushnil(L);
  while(lua.lua_next(L,absolute)){const key=value(L,-2);result[key]=value(L,-1);lua.lua_pop(L,1);}return result;
 }
-module.exports=function createRedis(){
+module.exports=function createRedis({omitNullFields=false}={}){
  const store=new Map(),expires=new Map();
  function exists(key){if(expires.get(key)<=Date.now()){store.delete(key);expires.delete(key);}return store.has(key);}
  function run(command){
@@ -38,7 +38,7 @@ module.exports=function createRedis(){
   push(L,params.slice(0,Number(n)));lua.lua_setglobal(L,to_luastring('KEYS'));
   push(L,params.slice(Number(n)).map(String));lua.lua_setglobal(L,to_luastring('ARGV'));
   lua.lua_newtable(L);
-  lua.lua_pushcfunction(L,L=>{push(L,JSON.parse(value(L,1)));return 1;});lua.lua_setfield(L,-2,to_luastring('decode'));
+  lua.lua_pushcfunction(L,L=>{push(L,JSON.parse(value(L,1),(key,v)=>omitNullFields&&v===null?undefined:v));return 1;});lua.lua_setfield(L,-2,to_luastring('decode'));
   lua.lua_pushcfunction(L,L=>{push(L,JSON.stringify(value(L,1)));return 1;});lua.lua_setfield(L,-2,to_luastring('encode'));lua.lua_setglobal(L,to_luastring('cjson'));
   lua.lua_newtable(L);lua.lua_pushcfunction(L,L=>{const args=[];for(let i=1;i<=lua.lua_gettop(L);i++)args.push(value(L,i));const result=run(args);if(result===null)lua.lua_pushboolean(L,false);else push(L,result);return 1;});lua.lua_setfield(L,-2,to_luastring('call'));lua.lua_setglobal(L,to_luastring('redis'));
   if(lauxlib.luaL_loadstring(L,to_luastring(script))!==lua.LUA_OK||lua.lua_pcall(L,0,1,0)!==lua.LUA_OK)throw Error(value(L,-1));
@@ -46,3 +46,4 @@ module.exports=function createRedis(){
  }
  return {run,store,expires};
 };
+

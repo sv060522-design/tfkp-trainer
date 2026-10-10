@@ -1,7 +1,8 @@
 // Integration tests use Node's real password hashing and execute the production Lua.
 const assert=require('node:assert/strict');
 const handler=require('../api/account.js'),ids=require('../data/progress-ids.js');
-const redis=require('./test-redis.cjs')();
+// Match the deployed store: Lua decoding omits JSON-null object fields.
+const redis=require('./test-redis.cjs')({omitNullFields:true});
 const originalFetch=global.fetch;
 global.fetch=async(url,options)=>{assert.equal(url,'https://test-store.upstash.io');assert.equal(options.headers.Authorization,'Bearer test-only-token');return new Response(JSON.stringify({result:redis.run(JSON.parse(options.body))}),{status:200});};
 const env={url:process.env.UPSTASH_REDIS_REST_URL,token:process.env.UPSTASH_REDIS_REST_TOKEN};
@@ -53,3 +54,4 @@ const solved={solved:true,starred:true,learningStatus:'solved-self'};
  assert.equal(JSON.stringify(reg.body).includes('passwordHash'),false);
  console.log('Account API OK: two sessions, password hashing, atomic Lua merge, stale reset protection, retries, separate users, CSRF/origin/session checks, input validation, logout and rate limits. Live storage is a separate deployment check.');
 })().catch(e=>{console.error(e);process.exitCode=1;}).finally(()=>{global.fetch=originalFetch;if(env.url===undefined)delete process.env.UPSTASH_REDIS_REST_URL;else process.env.UPSTASH_REDIS_REST_URL=env.url;if(env.token===undefined)delete process.env.UPSTASH_REDIS_REST_TOKEN;else process.env.UPSTASH_REDIS_REST_TOKEN=env.token;});
+

@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {JSDOM}=require('jsdom'),handler=require('../api/account.js'),ids=require('../data/progress-ids.js');
-const redis=require('./test-redis.cjs')(),originalFetch=global.fetch;
+const redis=require('./test-redis.cjs')({omitNullFields:true}),originalFetch=global.fetch;
 const env={url:process.env.UPSTASH_REDIS_REST_URL,token:process.env.UPSTASH_REDIS_REST_TOKEN};
 process.env.UPSTASH_REDIS_REST_URL='https://test-store.upstash.io';process.env.UPSTASH_REDIS_REST_TOKEN='test-only-token';
 global.fetch=async(url,options)=>new Response(JSON.stringify({result:redis.run(JSON.parse(options.body))}),{status:200});
@@ -46,6 +46,18 @@ async function auth(browser,register,name='sync_student',password='test-sync-pas
  a.offline(true);tasks=JSON.parse(a.w.localStorage.getItem(taskKey));tasks[third]={solved:true,starred:false,learningStatus:'solved-hint'};a.w.localStorage.setItem(taskKey,JSON.stringify(tasks));a.w.TFKPSync.changed('tasks');assert.equal(await a.w.TFKPSync.synchronize(),false);
  const saved=a.store(),cookie=a.getCookie();a.dom.window.close();const reloaded=boot(saved,cookie);await reloaded.w.TFKPSync.loadSession();await reloaded.w.TFKPSync.synchronize();await b.w.TFKPSync.synchronize();
  assert.equal(JSON.parse(b.w.localStorage.getItem(taskKey))[third].learningStatus,'solved-hint','offline queue survives reload and reconnect');
+ // Also accept old API responses where Lua omitted the null value field.
+ const originalClientFetch=reloaded.w.fetch;
+ reloaded.w.fetch=async(...args)=>{
+  const response=await originalClientFetch(...args),json=response.json;
+  response.json=async()=>{const v=await json();for(const entry of Object.values(v.progress?.records||{}))if(entry.value===null)delete entry.value;return v;};
+  return response;
+ };
+ reloaded.w.localStorage.setItem(taskKey,'{}');reloaded.w.localStorage.setItem(theoryKey,JSON.stringify({topics:{},cards:{}}));
+ reloaded.w.TFKPSync.changed();await reloaded.w.TFKPSync.synchronize();await b.w.TFKPSync.synchronize();
+ assert.deepEqual(JSON.parse(reloaded.w.localStorage.getItem(taskKey)),{},'legacy missing-value tombstones cannot restore solved tasks');
+ assert.deepEqual(JSON.parse(b.w.localStorage.getItem(taskKey)),{},'full reset reaches the other device');
+ assert.deepEqual(JSON.parse(b.w.localStorage.getItem(theoryKey)),{topics:{},cards:{}},'full reset includes theory');
  b.click('[data-sync-action="logout"]');await until(()=>!b.w.document.querySelector('[data-sync-action="logout"]'));
  assert.equal(b.w.localStorage.getItem(taskKey),bGuest,'logout restores anonymous progress');
  delete process.env.UPSTASH_REDIS_REST_URL;delete process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -53,3 +65,4 @@ async function auth(browser,register,name='sync_student',password='test-sync-pas
  reloaded.dom.window.close();b.dom.window.close();disabled.dom.window.close();
  console.log('Account client OK: optional disabled state, registration transfer, two independent browser stores, tasks + theory, manual guest merge, synchronized unsolved status, offline/reload queue, logout restore and no password storage.');
 })().catch(e=>{console.error(e);process.exitCode=1;}).finally(()=>{global.fetch=originalFetch;if(env.url===undefined)delete process.env.UPSTASH_REDIS_REST_URL;else process.env.UPSTASH_REDIS_REST_URL=env.url;if(env.token===undefined)delete process.env.UPSTASH_REDIS_REST_TOKEN;else process.env.UPSTASH_REDIS_REST_TOKEN=env.token;});
+
