@@ -65,16 +65,23 @@ function boot(hash,storage={}){
  const only=c.app.querySelector('#quiz-only-selected');only.checked=true;only.dispatchEvent(new c.w.Event('change'));await tick();
  assert.match(c.app.querySelector('#quiz-pool-count').textContent,/1 карточек/);
  assert.equal(c.app.querySelector('.theory-quiz-question h3').textContent,'Связное множество');
- c.click('[data-action="reveal"]');await tick();c.w.scrollY=345;
+ c.click('[data-action="reveal"]');await tick();
+ change(c,'theory-zoom','1.5');await tick();
+ assert(c.app.querySelector('.theory-quiz-answer'),'enlarging a formula keeps the answer open');
+ assert.equal(c.app.querySelector('.theory-page-scroll').getAttribute('tabindex'),'0','enlarged source is keyboard-scrollable');
+ c.w.scrollY=345;
  c.click('[data-action="claim"][data-id="definition-3-1"]');await tick();
  c.click('[data-action="back"]');await tick();await tick();
  assert(c.app.querySelector('.theory-quiz-answer'),'return restores revealed card');
  assert.equal(c.w.scrollY,345,'return restores scroll');
  assert.equal(c.app.querySelector('#quiz-only-selected').checked,true,'return restores selection filter');
+ assert.equal(c.app.querySelector('#theory-zoom').value,'1.5','return restores enlarged source');
  const preferences=c.w.localStorage.getItem('tfkp-trainer-theory-progress-v1-preferences');
  const d=boot('#section=theory&mode=quiz',{'tfkp-trainer-theory-progress-v1-preferences':preferences});await d.render();
  assert.equal(d.app.querySelector('#quiz-sort').value,'name');assert(d.app.querySelector('[data-card-select="definition-3-1"]').checked);
  assert.equal(d.app.querySelector('.theory-quiz-question h3').textContent,'Связное множество');
+ d.click('[data-action="reveal"]');await tick();
+ assert.equal(d.app.querySelector('#theory-zoom').value,'1.5','reload remembers source scale without changing grades');
  d.click('[data-action="quiz-reset"]');await tick();change(d,'quiz-source','tickets');await tick();change(d,'quiz-topic','32');await tick();
  assert.match(d.app.querySelector('.theory-quiz-question h3').textContent,/соответствия границ/);
  const selectedTicket=d.w.location.hash;d.click('[data-action="mode"][data-mode="book"]');await tick();d.click('[data-action="mode"][data-mode="quiz"]');await tick();
@@ -88,3 +95,4 @@ function boot(hash,storage={}){
  a.dom.window.close();b.dom.window.close();
  console.log('Theory state OK: semantic questions, sorting, selection and reload, topic/ticket scopes, remembered modes, revealed-answer/scroll return, grades, safe export/import and independent task storage');
 })().catch(e=>{console.error(e);process.exit(1);});
+

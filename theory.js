@@ -31,6 +31,7 @@
     const prefs = JSON.parse(localStorage.getItem(PREF_KEY)||'{}');
     if (Array.isArray(prefs.selected)) quizSelected = new Set(prefs.selected.filter(id=>typeof id==='string'));
     if (['program','name','status','random'].includes(prefs.sort)) quizSort=prefs.sort;
+    if (['fit','1','1.5','2'].includes(prefs.zoom)) zoom=prefs.zoom;
     quizOnlySelected=!!prefs.onlySelected;
     if(['program','tickets','book'].includes(prefs.scopeDoc))quizScopeDoc=prefs.scopeDoc;
     if(prefs.topic==='all'||/^\d{1,2}$/.test(prefs.topic||''))quizTopic=prefs.topic;
@@ -42,7 +43,7 @@
     }
   } catch {}
   function savePreferences() {
-    try { localStorage.setItem(PREF_KEY,JSON.stringify({selected:[...quizSelected],sort:quizSort,routes:lastRoutes,onlySelected:quizOnlySelected,scopeDoc:quizScopeDoc,topic:quizTopic,type:quizType,status:quizStatus,search:quizSearch})); } catch {}
+    try { localStorage.setItem(PREF_KEY,JSON.stringify({selected:[...quizSelected],sort:quizSort,routes:lastRoutes,onlySelected:quizOnlySelected,scopeDoc:quizScopeDoc,topic:quizTopic,type:quizType,status:quizStatus,search:quizSearch,zoom})); } catch {}
   }
   function uiState() { return {query,quizType,quizTopic,quizScopeDoc,quizStatus,quizSort,quizSearch,quizOnlySelected,quizSelected:[...quizSelected],quizListOpen,quizId,quizReveal,quizQueue:[...quizQueue],zoom}; }
   function restoreUi(v) {
@@ -134,7 +135,7 @@
   function pageMarkup(doc,page,clip=null) {
     const p=data.docs[doc].pageIndex[page-1],rect=clip||[0,0,p.width,p.height];
     const ratio=(rect[3]-rect[1])/(rect[2]-rect[0]);
-    return `<div class="theory-page-scroll"><div class="theory-page" data-doc="${doc}" data-page="${page}" data-clip="${E(JSON.stringify(rect))}" style="aspect-ratio:${1/ratio}"><div class="theory-page-loading">Загрузка страницы ${page}…</div></div></div>`;
+    return `<div class="theory-page-scroll" tabindex="0" role="region" aria-label="Текст страницы ${page}: горизонтальная прокрутка"><div class="theory-page" data-doc="${doc}" data-page="${page}" data-clip="${E(JSON.stringify(rect))}" style="aspect-ratio:${1/ratio}"><div class="theory-page-loading">Загрузка страницы ${page}…</div></div></div>`;
   }
   function readerMarkup(r) {
     const s=getSection(r.mode,r.item),meta=data.docs[r.mode];
@@ -210,7 +211,10 @@
         <button class="primary" id="quiz-show-answer" data-action="reveal" aria-expanded="${quizReveal}">${quizReveal?'Скрыть ответ':'Показать ответ'}</button>
         <button data-action="next" ${!pool.length?'disabled':''}>Следующая →</button>
       </div>
-      ${quizReveal?`<section class="theory-quiz-answer" aria-label="Точная формулировка"><p class="task-meta">${E(c.label)} · точная формулировка из полного конспекта.</p>${c.segments.map(seg=>pageMarkup(c.answerDoc,seg.page,seg.rect)).join('')}
+      ${quizReveal?`<section class="theory-quiz-answer" aria-label="Точная формулировка"><p class="task-meta">${E(c.label)} · точная формулировка из полного конспекта.</p>
+        <div class="theory-reader-toolbar"><label>Масштаб ответа <select id="theory-zoom">${[['fit','По ширине'],['1','100%'],['1.5','150%'],['2','200%']].map(([value,label])=>`<option value="${value}" ${zoom===value?'selected':''}>${label}</option>`).join('')}</select></label></div>
+        <p class="reader-help">Для мелкого текста выбери 100% или больше. Увеличенную формулировку можно прокручивать внутри рамки.</p>
+        ${c.segments.map(seg=>pageMarkup(c.answerDoc,seg.page,seg.rect)).join('')}
         <div class="theory-controls"><button data-action="grade" data-grade="known" data-id="${c.id}">✓ Знаю</button><button data-action="grade" data-grade="repeat" data-id="${c.id}">↻ Повторить</button><button data-action="grade" data-grade="new" data-id="${c.id}">Снять отметку</button><button data-action="claim" data-id="${c.id}" data-doc="${c.answerDoc}">Открыть в теории</button></div>
         <p class="task-meta" role="status">Моя отметка: ${CARD_STATUS[progress.cards[c.id]||'new'].toLocaleLowerCase('ru')}.</p>
       </section>`:''}`:'<div class="theory-quiz-question"><p>По этим фильтрам карточек нет. Выбери вопросы в списке или измени фильтры.</p><button data-action="quiz-reset">Все карточки</button></div>'}
@@ -292,13 +296,13 @@
       await loadData();if(token!==version||!isActive())return;
       const r=route();const draft=document.getElementById('theory-import')?.value||'';
       app.innerHTML=`<div class="app-shell theory-shell">${header()}${modeTabs(r)}<div class="theory-layout">${sidebar(r)}<main class="theory-main">${progressError?`<p class="quality-note" role="alert">${E(progressError)}</p>`:''}${r.mode==='quiz'?quizMarkup(r):readerMarkup(r)}${progressMarkup()}</main></div></div>`;
-      app.dataset.build='2026-10-09-v38';
+      app.dataset.build=window.TFKP_BUILD||'2026-10-10-v39';
       lastRoutes[r.mode]=r; savePreferences(); window.TFKPSync?.mount();
       app.addEventListener('click',onClick,{signal:eventController().signal});
       document.getElementById('theory-import').value=draft;
       const search=document.getElementById('theory-search');let searchTimer;
       search.addEventListener('input',()=>{query=search.value;clearTimeout(searchTimer);searchTimer=setTimeout(()=>{const focus=search.selectionStart;render().then(()=>{const n=document.getElementById('theory-search');n?.focus();try{n.setSelectionRange(focus,focus);}catch{}});},180);});
-      document.getElementById('theory-zoom')?.addEventListener('change',e=>{zoom=e.target.value;history.replaceState({...history.state,tfkpScroll:window.scrollY},'',location.href);render();});
+      document.getElementById('theory-zoom')?.addEventListener('change',e=>{zoom=e.target.value;savePreferences();history.replaceState({...history.state,tfkpScroll:window.scrollY},'',location.href);render();});
       for(const [id,key] of [['quiz-type','type'],['quiz-topic','topic'],['quiz-status','status'],['quiz-source','source'],['quiz-sort','sort']])document.getElementById(id)?.addEventListener('change',e=>{
         if(key==='type')quizType=e.target.value;else if(key==='topic')quizTopic=e.target.value;else if(key==='source'){quizScopeDoc=e.target.value;quizTopic='all';}else if(key==='sort')quizSort=e.target.value;else quizStatus=e.target.value;
         quizQueue=[];quizId='';quizReveal=false;savePreferences();history.replaceState({...history.state,tfkpScroll:0},'',hashFor({mode:'quiz',scope:quizScope()}));render();
@@ -345,3 +349,4 @@
   window.addEventListener('tfkp:progress-changed',()=>{progress=readProgress();if(isActive())render();});
   window.addEventListener('storage',e=>{if(e.key===KEY){progress=readProgress();if(isActive())render();}});
 })();
+
