@@ -51,10 +51,11 @@
     const tasks={},theory={topics:{},cards:{}},old=read(TASK,{}),values={...records,...meta.pending};
     // Preserve legacy fields on known task records; cloud storage only holds study marks.
     for(const [key,entry] of Object.entries(values)){
-      const i=key.indexOf(':'),domain=key.slice(0,i),id=key.slice(i+1);if(!allowed[domain]?.has(id)||entry.value===null||entry.value===undefined)continue;
+      const i=key.indexOf(':'),domain=key.slice(0,i),id=key.slice(i+1);if(!allowed[domain]?.has(id))continue;
+      lastStamp=Math.max(lastStamp,entry.at||0);
+      if(entry.value===null||entry.value===undefined)continue;
       if(domain==='tasks')tasks[id]={...(old[id]||{}),...entry.value,updatedAt:new Date(entry.at).toISOString()};
       else theory[domain][id]=entry.value;
-      lastStamp=Math.max(lastStamp,entry.at||0);
     }
     writeLocal(tasks,theory);
   }

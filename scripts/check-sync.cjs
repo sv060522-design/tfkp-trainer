@@ -47,10 +47,10 @@ async function auth(browser,register,name='sync_student',password='test-sync-pas
  const saved=a.store(),cookie=a.getCookie();a.dom.window.close();const reloaded=boot(saved,cookie);await reloaded.w.TFKPSync.loadSession();await reloaded.w.TFKPSync.synchronize();await b.w.TFKPSync.synchronize();
  assert.equal(JSON.parse(b.w.localStorage.getItem(taskKey))[third].learningStatus,'solved-hint','offline queue survives reload and reconnect');
  // Also accept old API responses where Lua omitted the null value field.
- const originalClientFetch=reloaded.w.fetch;
+ const originalClientFetch=reloaded.w.fetch;let deletionStamp=0;
  reloaded.w.fetch=async(...args)=>{
   const response=await originalClientFetch(...args),json=response.json;
-  response.json=async()=>{const v=await json();for(const entry of Object.values(v.progress?.records||{}))if(entry.value===null)delete entry.value;return v;};
+  response.json=async()=>{const v=await json();for(const [key,entry] of Object.entries(v.progress?.records||{}))if(entry.value===null){delete entry.value;if(key==='tasks:'+first){entry.at=Date.now()+30000;deletionStamp=entry.at;}}return v;};
   return response;
  };
  reloaded.w.localStorage.setItem(taskKey,'{}');reloaded.w.localStorage.setItem(theoryKey,JSON.stringify({topics:{},cards:{}}));
@@ -58,6 +58,11 @@ async function auth(browser,register,name='sync_student',password='test-sync-pas
  assert.deepEqual(JSON.parse(reloaded.w.localStorage.getItem(taskKey)),{},'legacy missing-value tombstones cannot restore solved tasks');
  assert.deepEqual(JSON.parse(b.w.localStorage.getItem(taskKey)),{},'full reset reaches the other device');
  assert.deepEqual(JSON.parse(b.w.localStorage.getItem(theoryKey)),{topics:{},cards:{}},'full reset includes theory');
+ reloaded.w.localStorage.setItem(taskKey,JSON.stringify({[first]:{solved:true,starred:false,learningStatus:'solved-self'}}));reloaded.w.TFKPSync.changed('tasks');
+ const pending=JSON.parse(reloaded.w.localStorage.getItem('tfkp-account-sync-v1')).pending['tasks:'+first];
+ assert(pending.at>deletionStamp,'a new mark must be newer than the received deletion even with clock skew');
+ await reloaded.w.TFKPSync.synchronize();await b.w.TFKPSync.synchronize();
+ assert.equal(JSON.parse(b.w.localStorage.getItem(taskKey))[first].solved,true,'a task can be solved again after reset');
  b.click('[data-sync-action="logout"]');await until(()=>!b.w.document.querySelector('[data-sync-action="logout"]'));
  assert.equal(b.w.localStorage.getItem(taskKey),bGuest,'logout restores anonymous progress');
  delete process.env.UPSTASH_REDIS_REST_URL;delete process.env.UPSTASH_REDIS_REST_TOKEN;
