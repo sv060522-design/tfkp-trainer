@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tfkp-trainer.vercel.app/sitemap.xml
+Sitemap: https://tfkp-trainer-zeta.vercel.app/sitemap.xml

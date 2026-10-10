@@ -1,0 +1,27 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:path((?!legacy-progress\\.html$).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "tfkp-trainer.vercel.app"
+        }
+      ],
+      "destination": "https://tfkp-trainer-zeta.vercel.app/:path",
+      "statusCode": 301
+    }
+  ],
+  "headers": [
+    {
+      "source": "/legacy-progress.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    }
+  ]
+}

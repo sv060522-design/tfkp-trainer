@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>Перенос прежних отметок — ТФКП тренажёр</title>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#182b28;background:#f4f6f2;color-scheme:light}
+    *{box-sizing:border-box}body{margin:0;padding:24px 16px}main{max-width:820px;margin:auto}
+    h1{font-size:clamp(24px,5vw,36px);line-height:1.15}h2{font-size:21px;margin-top:0}
+    p{line-height:1.6}a{color:#216948}section{background:white;border:1px solid #d5ded5;border-radius:16px;padding:20px;margin:20px 0}
+    label{display:block;font-weight:600;margin:18px 0 8px}textarea{display:block;width:100%;min-height:140px;padding:12px;border:1px solid #b7c5ba;border-radius:8px;font:13px/1.5 ui-monospace,monospace;resize:vertical}
+    button{background:#216948;color:white;border:0;border-radius:9px;padding:12px 16px;font:inherit;cursor:pointer}button:disabled{opacity:.5;cursor:default}
+    a:focus-visible,button:focus-visible,textarea:focus-visible{outline:3px solid #a16b18;outline-offset:3px}
+    .notice{background:#fff8df;border-radius:10px;padding:12px 16px}.meta{color:#50665b}footer{margin-top:28px}
+  </style>
+</head>
+<body>
+<main>
+  <a href="https://tfkp-trainer-zeta.vercel.app/">Открыть основной сайт</a>
+  <h1>Перенос прежних отметок</h1>
+  <p>Основной сайт теперь работает по адресу <a href="https://tfkp-trainer-zeta.vercel.app/">tfkp-trainer-zeta.vercel.app</a>. Эта страница помогает забрать отметки, сохранённые в браузере на прежнем адресе.</p>
+  <p id="status" role="status">Открой её в том браузере и на том устройстве, где отмечал задачи на старом сайте.</p>
+  <div id="exports">
+    <p class="notice">Импорт заменяет текущие отметки соответствующего раздела. Если на основном сайте уже есть важные отметки, сначала сохрани их через «Экспорт прогресса» или «Экспорт теории».</p>
+    <section>
+      <h2>Задачи</h2>
+      <p id="tasks-count" class="meta"></p>
+      <p>Скопируй JSON ниже. На основном сайте открой «Прогресс», вставь его в поле JSON и нажми «Импорт прогресса».</p>
+      <button id="download-tasks" type="button" disabled>Скачать отметки задач</button>
+      <label for="tasks-json">JSON отметок задач</label>
+      <textarea id="tasks-json" readonly></textarea>
+    </section>
+    <section>
+      <h2>Теория</h2>
+      <p id="theory-count" class="meta"></p>
+      <p>Скопируй JSON ниже. На основном сайте открой раздел теории → «Прогресс теории», вставь его в поле «Резервная копия JSON» и нажми «Импорт теории».</p>
+      <button id="download-theory" type="button" disabled>Скачать отметки теории</button>
+      <label for="theory-json">JSON отметок теории</label>
+      <textarea id="theory-json" readonly></textarea>
+    </section>
+  </div>
+  <footer><p>Эта страница только читает прежние отметки. После переноса войди в один аккаунт на своих устройствах, чтобы прогресс синхронизировался.</p></footer>
+</main>
+<script>
+(function(){
+  'use strict';
+  var oldHost='tfkp-trainer.vercel.app';
+  if(location.hostname!==oldHost){
+    document.getElementById('exports').hidden=true;
+    document.getElementById('status').textContent='Для переноса перейди на страницу старого адреса:';
+    var oldLink=document.createElement('a');
+    oldLink.href='https://'+oldHost+'/legacy-progress.html';
+    oldLink.textContent='Открыть прежние отметки';
+    document.getElementById('status').append(' ',oldLink);
+    return;
+  }
+  function isObject(v){return !!v&&typeof v==='object'&&!Array.isArray(v);}
+  function read(key,fallback){
+    var raw=localStorage.getItem(key);
+    var v=raw===null?fallback:JSON.parse(raw);
+    if(!isObject(v))throw Error('Неверный формат');
+    return v;
+  }
+  function download(text,name){
+    var url=URL.createObjectURL(new Blob([text],{type:'application/json'}));
+    var link=document.createElement('a');
+    link.href=url;link.download=name;link.click();
+    setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  }
+  function show(kind,value,count,name){
+    var text=JSON.stringify(value,null,2);
+    document.getElementById(kind+'-json').value=text;
+    document.getElementById(kind+'-count').textContent=count;
+    var button=document.getElementById('download-'+kind);
+    button.disabled=false;
+    button.addEventListener('click',function(){download(text,name);});
+  }
+  try{
+    var tasks=read('tfkp-trainer-progress-v2',{});
+    show('tasks',tasks,'Задач с сохранёнными отметками: '+Object.keys(tasks).length,'tfkp-progress.json');
+  }catch(e){
+    document.getElementById('tasks-count').textContent='Не удалось прочитать отметки задач. Проверь, что разрешено хранение данных сайта в этом браузере.';
+  }
+  try{
+    var theory=read('tfkp-trainer-theory-progress-v1',{topics:{},cards:{}});
+    if(!isObject(theory.topics)||!isObject(theory.cards))throw Error('Неверный формат');
+    var readTopics=Object.values(theory.topics).filter(function(v){return v===true;}).length;
+    var knownCards=Object.values(theory.cards).filter(function(v){return v==='known';}).length;
+    show('theory',theory,'Прочитанных разделов: '+readTopics+'. Выученных формулировок: '+knownCards+'.','tfkp-theory-progress.json');
+  }catch(e){
+    document.getElementById('theory-count').textContent='Не удалось прочитать отметки теории. Проверь, что разрешено хранение данных сайта в этом браузере.';
+  }
+})();
+</script>
+</body>
+</html>
