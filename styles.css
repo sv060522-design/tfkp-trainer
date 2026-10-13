@@ -14,6 +14,9 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); }
+.access-note { border-top: 1px solid var(--line); padding: 16px clamp(18px, 4vw, 58px); color: #5f5447; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.access-note p { max-width: 1100px; margin: 0 auto; }
+.access-note a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; border: 1px solid var(--line); background: white; border-radius: 12px; padding: 10px 14px; color: var(--ink); }
 button:hover { border-color: #b9aa97; }
