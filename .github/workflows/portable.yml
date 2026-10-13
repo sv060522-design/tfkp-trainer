@@ -1,0 +1,34 @@
+name: Portable hosting checks
+on:
+  push:
+    branches: [main, migration/russia-hosting]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  portable:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test
+      - run: npm run test:account
+      - run: npm run test:portable
+      - name: Build and check the actual runtime image
+        run: |
+          docker build --tag tfkp-portable-test .
+          docker run --detach --name tfkp-portable-test --publish 127.0.0.1:8080:8080 tfkp-portable-test
+          node scripts/check-container.cjs
+      - name: Container diagnostics
+        if: failure()
+        run: docker logs tfkp-portable-test
+      - name: Stop test container
+        if: always()
+        run: docker rm --force tfkp-portable-test || true
